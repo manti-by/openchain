@@ -8,4 +8,4 @@ def string_to_bytes(string):
 
 
 def get_client_id(request):
-    return request.remote_ip
+    return request.headers.get('X-Client-STUN-Address', '%s:8112' % request.remote_ip)
