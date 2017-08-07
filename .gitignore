@@ -3,4 +3,5 @@
 *.pyc
 *~
 
-tracker/db
+tracker/db/
+.vagrant/
