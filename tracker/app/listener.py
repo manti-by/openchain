@@ -1,9 +1,11 @@
-
+import logging
 import leveldb
 import tornado.web
 
-from app.models import ClientManager
-from app.utils import get_client_id
+from tracker.app.models import ClientManager
+from common.utils import get_client_id
+
+logger = logging.getLogger()
 
 
 class Listener(tornado.web.RequestHandler):
@@ -15,6 +17,7 @@ class Listener(tornado.web.RequestHandler):
         try:
             self.db.Get(self.clients_key)
         except:
+            logger.info('Initialize clients DB')
             self.db.Put(self.clients_key, b'[]')
 
     def update_clients(self):
@@ -24,6 +27,7 @@ class Listener(tornado.web.RequestHandler):
         return clients
 
     def get(self):
+        logger.info('Processing get request')
         clients = self.update_clients()
         self.set_header('Content-Type', 'application/json')
         self.write(clients.__bytes__())
