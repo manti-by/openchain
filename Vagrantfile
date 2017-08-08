@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     app.vm.network "private_network", ip: "192.168.112.10"
 
-    app.vm.provision :shell, path: "deploy/scripts/runserver.sh", run: 'always'
+    app.vm.provision :shell, path: "deploy/scripts/runtracker.sh", run: 'always'
   end
 
   config.vm.define "app_01" do |app|
@@ -28,7 +28,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     app.vm.network "private_network", ip: "192.168.112.11"
 
     app.trigger.after :up do
-      run "vagrant ssh app_01 -c 'deploy/scripts/runserver.sh' -- -n"
+      run "vagrant ssh app_01 -c 'deploy/scripts/runclient.sh' -- -n"
     end
   end
 
@@ -46,7 +46,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     app.vm.network "private_network", ip: "192.168.112.12"
 
     app.trigger.after :up do
-      run "vagrant ssh app_02 -c 'deploy/scripts/runserver.sh' -- -n"
+      run "vagrant ssh app_02 -c 'deploy/scripts/runclient.sh' -- -n"
     end
   end
 
@@ -64,7 +64,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     app.vm.network "private_network", ip: "192.168.112.13"
 
     app.trigger.after :up do
-      run "vagrant ssh app_03 -c 'deploy/scripts/runserver.sh' -- -n"
+      run "vagrant ssh app_03 -c 'deploy/scripts/runclient.sh' -- -n"
     end
   end
 
@@ -82,7 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     app.vm.network "private_network", ip: "192.168.112.14"
 
     app.trigger.after :up do
-      run "vagrant ssh app_04 -c 'deploy/scripts/runserver.sh' -- -n"
+      run "vagrant ssh app_04 -c 'deploy/scripts/runclient.sh' -- -n"
     end
   end
 
@@ -100,7 +100,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     app.vm.network "private_network", ip: "192.168.112.15"
 
     app.trigger.after :up do
-      run "vagrant ssh app_05 -c 'deploy/scripts/runserver.sh' -- -n"
+      run "vagrant ssh app_05 -c 'deploy/scripts/runclient.sh' -- -n"
     end
   end
 end
