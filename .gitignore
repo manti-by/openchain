@@ -5,3 +5,5 @@
 
 tracker/db/
 .vagrant/
+/*.log
+/logs/
