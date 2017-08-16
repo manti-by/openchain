@@ -23,10 +23,10 @@ def init_logger():
 
 
 def get_client_id(request)->str:
-    return request.headers.get('X-Client-STUN-Address', None)
+    return request.headers.get('X-Client-STUN-Address', '{}:8112'.format(request.remote_ip))
 
 
-def get_internal_address(adapter='enp2s0'):
+def get_internal_address(adapter='enp0s8'):
     try:
         search_string = os.popen('ip addr show {}'.format(adapter)).read()
         match = re.search(re.compile(r'(?<=inet )(.*)(?=\/)', re.M), search_string)

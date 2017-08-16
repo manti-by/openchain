@@ -21,10 +21,13 @@ class Listener(tornado.web.RequestHandler):
             self.db.Put(self.clients_key, b'[]')
 
     def update_clients(self):
-        clients = ClientManager(self.db.Get(self.clients_key))
-        clients.update_client(get_client_id(self.request))
-        self.db.Put(self.clients_key, clients.__bytes__())
-        return clients
+        try:
+            clients = ClientManager(self.db.Get(self.clients_key))
+            clients.update_client(get_client_id(self.request))
+            self.db.Put(self.clients_key, clients.__bytes__())
+            return clients
+        except Exception as e:
+            logger.error(e)
 
     def get(self):
         logger.info('Processing get request')

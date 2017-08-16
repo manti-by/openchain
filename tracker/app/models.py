@@ -42,8 +42,17 @@ class Client(object):
         self.client_id = client_id
         self.timestamp = timestamp if isinstance(timestamp, float) else time.time()
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.client_id == other.client_id
+        else:
+            return False
+
+    def __hash__(self):
+        return hash(self.client_id)
+
     def __bytes__(self):
         return string_to_bytes(self.__str__())
 
     def __str__(self):
-        return '{"client_id": "{}", "timestamp": {}}'.format(self.client_id, self.timestamp)
+        return '{{"client_id": "{}", "timestamp": {}}}'.format(self.client_id, self.timestamp)
