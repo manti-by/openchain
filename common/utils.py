@@ -4,9 +4,10 @@ import logging
 import logging.config
 
 from array import array
+from socket import *
 
 from common.conf import settings
-from common.stun import get_ip_info
+from common.stun import get_ip_info, OpenInternet, FullCone
 
 logger = logging.getLogger()
 
@@ -21,25 +22,28 @@ def init_logger():
     logging.basicConfig(level=logging.DEBUG)
     logging.config.dictConfig(settings['logging'])
 
+    return logger
+
+
+def init_socket():
+    nat_type, ip, port = get_ip_info()
+    if nat_type not in (OpenInternet, FullCone):
+        logger.critical('Your internet connection does not support NAT translation')
+        logger.info('Trying to use internal routing')
+
+    if ip is None or port is None:
+        logger.critical('Cant get external client address')
+        ip = '0.0.0.0'
+        port = 8112
+
+    logger.info('Trying to bind address {}:{}'.format(ip, port))
+
+    sock = socket()
+    sock.bind((ip, port))
+    sock.listen(1)
+
+    return sock.accept()
+
 
 def get_client_id(request)->str:
     return request.headers.get('X-Client-STUN-Address', '{}:8112'.format(request.remote_ip))
-
-
-def get_internal_address(adapter='enp0s8'):
-    try:
-        search_string = os.popen('ip addr show {}'.format(adapter)).read()
-        match = re.search(re.compile(r'(?<=inet )(.*)(?=\/)', re.M), search_string)
-        return match.group(1), 8112
-    except:
-        logger.warning('Failed to get internal address')
-        return None, None
-
-
-def get_external_address():
-    try:
-        nat_type, ip, port = get_ip_info()
-        return nat_type, ip, port
-    except:
-        logger.warning('Failed to get external address')
-        return None, None, None

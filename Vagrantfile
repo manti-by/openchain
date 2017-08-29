@@ -3,8 +3,8 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.define "blockchain-tracker", primary: true do |app|
-    app.vm.hostname = "blockchain-tracker"
+  config.vm.define "tracker", primary: true do |app|
+    app.vm.hostname = "tracker"
     app.vm.box = "ubuntu/xenial64"
 
     app.vm.provision "shell", path: "deploy/scripts/bootstrap.sh", privileged: false
@@ -14,7 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   for index in 1..5
-    server_name = "blockchain-client-%s" % index
+    server_name = "client-%s" % index
     config.vm.define server_name do |app|
       app.vm.hostname = server_name
       app.vm.box = "ubuntu/xenial64"
