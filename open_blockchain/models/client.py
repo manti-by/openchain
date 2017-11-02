@@ -1,8 +1,7 @@
 import time
 import logging
 
-from open_blockchain.models.base import Manager
-from open_blockchain.utils import string_to_bytes
+from open_blockchain.models.base import Model, Manager
 
 logger = logging.getLogger()
 
@@ -16,15 +15,17 @@ class ClientManager(Manager):
                 updated = True
                 client.timestamp = time.time()
         if not updated:
-            logger.info('Add new client {}'.format(client_id))
+            logger.debug('Add new client {}'.format(client_id))
             self.append(Client(client_id))
         self.save()
 
 
-class Client(object):
+class Client(Model):
 
     client_id = None
     timestamp = None
+
+    objects = ClientManager()
 
     def __init__(self, client_id):
         self.client_id = client_id
@@ -39,8 +40,8 @@ class Client(object):
     def __hash__(self):
         return hash(self.client_id)
 
-    def __bytes__(self):
-        return string_to_bytes(self.__str__())
-
-    def __str__(self):
-        return '{{"client_id": "{}", "timestamp": {}}}'.format(self.client_id, self.timestamp)
+    def __dict__(self):
+        return {
+            'client_id': self.client_id,
+            'timestamp': self.timestamp
+        }

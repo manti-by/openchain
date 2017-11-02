@@ -1,13 +1,13 @@
 import logging
 import tornado.web
 
-from .models import ClientManager
-from open_blockchain.network import get_client_id
+from open_blockchain.models.client import ClientManager
+from open_blockchain.utils.network import get_client_id
 
 logger = logging.getLogger()
 
 
-class Listener(tornado.web.RequestHandler):
+class TrackerListener(tornado.web.RequestHandler):
 
     def process_request(self):
         try:

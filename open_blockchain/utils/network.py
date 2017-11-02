@@ -2,7 +2,7 @@ import logging
 
 from socket import socket
 
-from open_blockchain.stun import get_ip_info, OpenInternet, FullCone
+from open_blockchain.utils.stun import get_ip_info, OpenInternet, FullCone
 
 logger = logging.getLogger()
 

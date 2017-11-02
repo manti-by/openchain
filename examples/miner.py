@@ -1,7 +1,9 @@
 import logging
 
-from open_blockchain.utils import init_logger, string_to_bytes
-from open_blockchain.network import init_socket
+from open_blockchain.utils.network import init_socket
+
+from .common.conf import settings
+from .common.utils import init_logger, string_to_bytes
 
 logger = logging.getLogger()
 
@@ -10,7 +12,7 @@ if __name__ == "__main__":
     local = True
     logger.info('Starting client application')
 
-    init_logger()
+    init_logger(settings)
     sock, ip, port = init_socket(local)
 
     request = string_to_bytes('X-Client-STUN-Address: {}:{}'.format(ip, port))
