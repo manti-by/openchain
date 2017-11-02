@@ -3,7 +3,9 @@
 *.pyc
 *~
 
-tracker/db/
-.vagrant/
-/*.log
-/logs/
+examples/tracker/db/
+examples/miner/db/
+examples/client/db/
+examples/.vagrant/
+examples/*.log
+examples/logs/

@@ -1,8 +1,8 @@
 import time
 import logging
 
-from common.models import Manager
-from common.utils import string_to_bytes
+from open_blockchain.models.base import Manager
+from open_blockchain.utils import string_to_bytes
 
 logger = logging.getLogger()
 

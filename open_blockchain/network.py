@@ -1,31 +1,13 @@
-import os
-import re
 import logging
-import logging.config
 
-from array import array
-from socket import *
+from socket import socket
 
-from common.conf import settings
-from common.stun import get_ip_info, OpenInternet, FullCone
+from open_blockchain.stun import get_ip_info, OpenInternet, FullCone
 
 logger = logging.getLogger()
 
 
-def string_to_bytes(string):
-    array_key = array('b')
-    array_key.frombytes(string.encode())
-    return array_key.tobytes()
-
-
-def init_logger():
-    logging.basicConfig(level=logging.DEBUG)
-    logging.config.dictConfig(settings['logging'])
-
-    return logger
-
-
-def init_socket():
+def init_socket(local=False):
     nat_type, ip, port = get_ip_info()
     if nat_type not in (OpenInternet, FullCone):
         logger.critical('Your internet connection does not support NAT translation')
@@ -33,16 +15,18 @@ def init_socket():
 
     if ip is None or port is None:
         logger.critical('Cant get external client address')
+        local = True
+
+    if local:
         ip = '0.0.0.0'
-        port = 8112
+        port = 8113
 
     logger.info('Trying to bind address {}:{}'.format(ip, port))
 
     sock = socket()
     sock.bind((ip, port))
-    sock.listen(1)
 
-    return sock.accept()
+    return sock, ip, port
 
 
 def get_client_id(request)->str:

@@ -90,18 +90,22 @@ RestricPortNAT = "Restric Port NAT"
 SymmetricNAT = "Symmetric NAT"
 ChangedAddressError = "Meet an error, when do Test1 on Changed IP and Port"
 
+
 def b2a_hexstr(abytes):
     return binascii.b2a_hex(abytes).decode("ascii")
 
+
 def _initialize():
     global dictValToAttr, dictValToMsgType
-    dictValToAttr= {v: k for k, v in dictAttrToVal.items()}
+    dictValToAttr = {v: k for k, v in dictAttrToVal.items()}
     dictValToMsgType = {v: k for k, v in dictMsgTypeToVal.items()}
+
 
 def gen_tran_id():
     a = ''.join(random.choice('0123456789ABCDEF') for i in range(32))
     # return binascii.a2b_hex(a)
     return a
+
 
 def stun_test(sock, host, port, source_ip, source_port, send_data=""):
     retVal = {'Resp': False, 'ExternalIP': None, 'ExternalPort': None,
