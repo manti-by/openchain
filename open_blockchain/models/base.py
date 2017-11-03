@@ -1,41 +1,28 @@
 import json
 import leveldb
-import logging
-
-from open_blockchain.utils import string_to_bytes
-
-logger = logging.getLogger()
 
 
-class Manager(object):
+class Manager:
 
-    query_set = []
+    qs = []
 
-    def __init__(self):
-        self.db = leveldb.LevelDB('./db')
-        try:
-            self._data = self.db.Get(self.__class__)
-        except Exception:
-            logger.debug('Initialize DB for {}'.format(self.__class__))
-            self.db.Put(self.__class__, b'[]')
+    def get(self) -> list:
+        return self.qs
 
-    def __bytes__(self):
-        return string_to_bytes(self.__str__())
+    def set(self, qs: list, commit: bool=False):
+        self.qs = qs
+        if commit:
+            self.save()
 
-    def __str__(self):
-        return '[%s]' % ', '.join([i.__str__() for i in self.query_set])
-
-    def get(self):
-        return self.query_set
-
-    def set(self, query_set):
-        self.query_set = query_set
-
-    def append(self, item):
-        self.query_set.append(item)
+    def append(self, item: object):
+        self.qs.append(item)
 
     def save(self):
-        self.db.Put(self.__class__, self.__bytes__)
+        db = leveldb.LevelDB('./db/{}'.format(self.__name__.lower()))
+        batch = leveldb.WriteBatch()
+        for i in self.qs:
+            db.Put(i.pk.encode(), i)
+        db.Write(batch, sync=True)
 
 
 class Model:
@@ -43,12 +30,16 @@ class Model:
     objects = Manager()
 
     def __bytes__(self):
-        return string_to_bytes(self.__str__())
+        return self.__str__().encode()
 
     def __str__(self):
         raise json.dumps(self.__dict__())
 
     def __dict__(self):
+        raise NotImplementedError
+
+    @property
+    def pk(self):
         raise NotImplementedError
 
     def save(self):
