@@ -22,5 +22,9 @@ settings = {
                 'propagate': True
             },
         }
+    },
+    'pool_server': {
+        '192.168.112.10',
+        8000
     }
 }

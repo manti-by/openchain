@@ -23,7 +23,7 @@ def failure(connection):
 
 
 if __name__ == "__main__":
-    logger.debug('Starting miner application')
+    logger.debug('Starting wallet application')
 
     init_logger(settings)
     ip, port, interface = get_address()

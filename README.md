@@ -1,32 +1,31 @@
-Blockchain App
-==============
+Open Blockchain Library
+=======================
 
 
 About
 -----
 
-Blockchain test app.
+Library for creating blockchain networks.
 
 Author: Alex Manti <manti.by@gmail.com>
 
-Source link: https://bitbucket.org/manti_by/blockchain
+Source link: https://bitbucket.org/manti_by/open_blockchain
 
 Requirements:
-
-    Ubuntu 16, Python 3, Gunicorn, LevelDB
+- Base - ECSDA, LevelDB
+- Development - Flake8
+- Examples - Tornado, PyP2P
     
     
 Installation
 ------------
 
-1. Install latest vagrant from [official site](https://www.vagrantup.com/downloads.html)
+From pypi.python.org
 
+        $ pip install open_blockchain
+        
+From [bitbucket.org](https://bitbucket.org/manti_by/open_blockchain)
 
-2. Install vagrant triggers plugin
-
-        vagrant plugin install vagrant-triggers
-
-
-3. Run vagrant (all setup commands will be running automatically)
-
-        vagrant up
+        $ git clone git@bitbucket.org:manti_by/open_blockchain.git
+        $ cd open_blockchain/
+        $ python setup.py install

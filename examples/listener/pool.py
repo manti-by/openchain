@@ -7,7 +7,7 @@ from open_blockchain.utils.network import get_client_id
 logger = logging.getLogger()
 
 
-class TrackerListener(tornado.web.RequestHandler):
+class PoolListener(tornado.web.RequestHandler):
 
     def process_request(self):
         try:

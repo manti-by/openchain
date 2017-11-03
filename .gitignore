@@ -3,9 +3,13 @@
 *.pyc
 *~
 
-examples/tracker/db/
-examples/miner/db/
-examples/client/db/
-examples/.vagrant/
-examples/*.log
+examples/db/
+examples/deploy/.vagrant/
+
 examples/logs/
+examples/*.log
+
+*.egg-info/
+
+/build/
+/dist/

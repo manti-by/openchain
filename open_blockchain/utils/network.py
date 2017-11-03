@@ -7,7 +7,7 @@ from open_blockchain.utils.stun import get_ip_info, OpenInternet, FullCone
 logger = logging.getLogger()
 
 
-def init_socket(local=False):
+def init_socket():
     nat_type, ip, port = get_ip_info()
     if nat_type not in (OpenInternet, FullCone):
         logger.critical('Your internet connection does not support NAT translation')

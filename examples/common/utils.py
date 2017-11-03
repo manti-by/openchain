@@ -15,5 +15,9 @@ def string_to_bytes(string):
 def init_logger(settings):
     logging.basicConfig(level=logging.DEBUG)
     logging.config.dictConfig(settings['logging'])
-
     return logger
+
+
+def get_address():
+    ip = port = interface = None
+    return ip, port, interface
