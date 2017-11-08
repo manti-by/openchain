@@ -6,6 +6,8 @@ About
 
 Library for creating blockchain networks.
 
+**WARNING:** Currently library in **Alpha** development status. It's a concept of vision, not working library yet.
+
 Author: Alexander Chaika <manti.by@gmail.com>
 
 Source link: https://bitbucket.org/manti_by/openchain
