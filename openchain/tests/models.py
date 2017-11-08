@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from open_blockchain.models.transaction import Transaction
+from openchain.models.transaction import Transaction
 
 TEST_PRIVATE_KEY_HEX = 'ef3eb92784e801c1a41e6b9affaf3451ed442145e9baf126ed44ec936fac6686'
 TEST_PRIVATE_KEY_RAW = bytes.fromhex(TEST_PRIVATE_KEY_HEX)

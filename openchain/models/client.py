@@ -1,7 +1,7 @@
 import time
 import logging
 
-from open_blockchain.models.base import Model, Manager
+from openchain.models.base import Model, Manager
 
 logger = logging.getLogger()
 

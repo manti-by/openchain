@@ -2,8 +2,8 @@ import hashlib
 
 from ecdsa import SigningKey, SECP256k1
 
-from open_blockchain.utils.base import base58CheckEncode
-from open_blockchain.models.base import Model, Manager
+from openchain.utils.base import base58CheckEncode
+from openchain.models.base import Model, Manager
 
 
 class WalletManager(Manager):

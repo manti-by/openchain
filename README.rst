@@ -1,5 +1,5 @@
-Open Blockchain Library
-=======================
+Openchain Library
+=================
 
 About
 -----
@@ -15,7 +15,7 @@ Requirements:
 - Base - ECSDA, LevelDB
 - Development - Flake8
 - Examples - Tornado, PyP2P
-    
+
 Installation
 ------------
 
@@ -23,10 +23,10 @@ From `PyPi <https://pypi.org/>`_
 
         $ pip install open_blockchain
         
-From `Bitbucket <https://bitbucket.org/manti_by/open_blockchain>`_
+From `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
 
-        $ git clone git@bitbucket.org:manti_by/open_blockchain.git
+        $ git clone git@bitbucket.org:manti_by/openchain.git
 
-        $ cd open_blockchain/
+        $ cd openchain/
 
         $ python setup.py install

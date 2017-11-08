@@ -4,7 +4,7 @@ from ecdsa import SigningKey, VerifyingKey, SECP256k1
 from ecdsa.util import sigencode_der, sigdecode_der
 from hashlib import sha256
 
-from open_blockchain.models.base import Model, Manager
+from openchain.models.base import Model, Manager
 
 
 class TransactionException(Exception):

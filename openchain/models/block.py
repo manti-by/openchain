@@ -2,8 +2,8 @@ import time
 import hashlib
 import logging
 
-from open_blockchain.models.base import Model, Manager
-from open_blockchain.utils import string_to_bytes
+from openchain.models.base import Model, Manager
+from openchain.utils import string_to_bytes
 
 logger = logging.getLogger()
 

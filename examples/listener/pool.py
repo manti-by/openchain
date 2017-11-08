@@ -1,8 +1,8 @@
 import logging
 import tornado.web
 
-from open_blockchain.models.client import ClientManager
-from open_blockchain.utils.network import get_client_id
+from openchain.models.client import ClientManager
+from openchain.utils.network import get_client_id
 
 logger = logging.getLogger()
 
