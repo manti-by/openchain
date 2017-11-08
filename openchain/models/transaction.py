@@ -9,7 +9,9 @@ from openchain.models.exceptions import TransactionInvalidPublicKeyException, Tr
 
 
 class TransactionManager(Manager):
-    pass
+
+    def model_from_dict(self, data):
+        return Transaction(**data)
 
 
 class Transaction(Model):
@@ -20,7 +22,7 @@ class Transaction(Model):
     public_key = None
     signature = None
 
-    objects = TransactionManager()
+    objects = TransactionManager
 
     def __init__(self, in_address: str, out_address: str, amount: float,
                  public_key: VerifyingKey=None, signature: str=None):
@@ -59,9 +61,6 @@ class Transaction(Model):
         return False
 
     @property
-    def pk(self) -> str:
-        return self.signature
-
     def __dict__(self) -> dict:
         if not self.is_valid:
             raise TransactionInvalidSignatureException

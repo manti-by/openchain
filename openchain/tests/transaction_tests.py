@@ -15,10 +15,10 @@ class TransactionTestCase(TestCase):
     def test_transaction_public_key_exception(self):
         transaction = Transaction(in_address='addr1', out_address='addr2', amount=10.50,
                                   public_key=TEST_ANOTHER_PUBLIC_KEY)
-        self.assertRaises(TransactionInvalidPublicKeyException,
-                          transaction.signing, TEST_PRIVATE_KEY_BYTES)
+        with self.assertRaises(TransactionInvalidPublicKeyException):
+            transaction.signing(TEST_PRIVATE_KEY_BYTES)
 
     def test_transaction_signature_exception(self):
         transaction = Transaction(in_address='addr1', out_address='addr2', amount=10.50)
-        self.assertRaises(TransactionInvalidSignatureException,
-                          transaction.__dict__)
+        with self.assertRaises(TransactionInvalidSignatureException):
+            self.assertIsInstance(transaction.__dict__, dict)

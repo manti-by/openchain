@@ -1,30 +1,34 @@
 import hashlib
 
-from ecdsa import SigningKey, SECP256k1
+from ecdsa import VerifyingKey, SigningKey, SECP256k1
 
 from openchain.utils.base import base58check_encode
 from openchain.models.base import Model, Manager
 
 
 class WalletManager(Manager):
-    pass
+
+    def model_from_dict(self, data):
+        return Wallet(**data)
 
 
 class Wallet(Model):
 
-    def __init__(self):
-        self.private_key = SigningKey.generate(curve=SECP256k1)
-        self.public_key = self.private_key.get_verifying_key()
+    private_key = None
+    public_key = None
 
+    objects = WalletManager
+
+    def __init__(self, private_key: SigningKey=None, public_key: VerifyingKey=None):
+        self.private_key = SigningKey.generate(curve=SECP256k1) if private_key is None else private_key
+        self.public_key = self.private_key.get_verifying_key() if public_key is None else public_key
+
+    @property
     def __dict__(self) -> dict:
         return {
             'private_key': self.private_key,
             'public_key': self.public_key
         }
-
-    @property
-    def pk(self):
-        return self.address
 
     @property
     def private_key_hex(self) -> str:

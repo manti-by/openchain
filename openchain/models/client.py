@@ -8,16 +8,18 @@ logger = logging.getLogger()
 
 class ClientManager(Manager):
 
-    def update(self, client_id):
+    def append(self, client: object, commit: bool=False):
         updated = False
-        for client in self.get():
-            if client.client_id == client_id:
+        for c in self.get():
+            if client == c:
                 updated = True
                 client.timestamp = time.time()
         if not updated:
-            logger.debug('Add new client {}'.format(client_id))
-            self.append(Client(client_id))
+            self.qs.append(client)
         self.save()
+
+    def model_from_dict(self, data):
+        return Client(**data)
 
 
 class Client(Model):
@@ -25,21 +27,14 @@ class Client(Model):
     client_id = None
     timestamp = None
 
-    objects = ClientManager()
+    objects = ClientManager
 
-    def __init__(self, client_id):
+    def __init__(self, client_id: str, timestamp: float=None):
         self.client_id = client_id
-        self.timestamp = time.time()
+        if timestamp is None:
+            self.timestamp = time.time()
 
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.client_id == other.client_id
-        else:
-            return False
-
-    def __hash__(self):
-        return hash(self.client_id)
-
+    @property
     def __dict__(self):
         return {
             'client_id': self.client_id,

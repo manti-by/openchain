@@ -1,10 +1,19 @@
 import json
 import leveldb
+import xxhash
 
 
 class Manager:
 
+    db = None
     qs = []
+
+    def __init__(self):
+        filename = './db/{}'.format(self.__class__.__name__.lower())
+        self.db = leveldb.LevelDB(filename)
+        for key, value in self.db.RangeIter():
+            data = json.loads(value.decode())
+            self.append(self.model_from_dict(data))
 
     def get(self) -> list:
         return self.qs
@@ -14,34 +23,49 @@ class Manager:
         if commit:
             self.save()
 
-    def append(self, item: object):
+    def delete(self, item: dict, commit: bool=False):
+        for i in self.qs:
+            if i == item:
+                del i
+        if commit:
+            self.save()
+
+    def append(self, item: object, commit: bool=False):
         self.qs.append(item)
+        if commit:
+            self.save()
 
     def save(self):
-        db = leveldb.LevelDB('./db/{}'.format(self.__name__.lower()))
         batch = leveldb.WriteBatch()
-        for i in self.qs:
-            db.Put(i.pk.encode(), i)
-        db.Write(batch, sync=True)
+        for item in self.qs:
+            index = xxhash.xxh64()
+            index.update(item.__bytes__)
+            self.db.Put(index.digest(), item.__bytes__)
+        self.db.Write(batch, sync=True)
+
+    def model_from_dict(self, data):
+        raise NotImplementedError
 
 
 class Model:
 
-    objects = Manager()
-
-    def __bytes__(self):
-        return self.__str__().encode()
-
-    def __str__(self):
-        raise json.dumps(self.__dict__())
-
-    def __dict__(self):
-        raise NotImplementedError
+    data = None
+    objects = Manager
+    manager = None
 
     @property
-    def pk(self):
-        raise NotImplementedError
+    def __dict__(self) -> dict:
+        raise NotImplementedError()
+
+    @property
+    def __str__(self) -> str:
+        return json.dumps(self.__dict__)
+
+    @property
+    def __bytes__(self) -> bytes:
+        return self.__str__.encode()
 
     def save(self):
-        self.objects.append(self)
-        self.objects.save()
+        if self.manager is None:
+            self.manager = self.objects()
+        self.manager.append(self, commit=True)
