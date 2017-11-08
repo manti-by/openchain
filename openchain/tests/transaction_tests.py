@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from openchain.models.transaction import Transaction
 from openchain.models.exceptions import TransactionInvalidPublicKeyException, TransactionInvalidSignatureException
-from openchain.tests.constants import TEST_PRIVATE_KEY_BYTES, TEST_ANOTHER_PUBLIC_KEY_HEX
+from openchain.tests.constants import TEST_PRIVATE_KEY_BYTES, TEST_ANOTHER_PUBLIC_KEY
 
 
 class TransactionTestCase(TestCase):
@@ -14,7 +14,7 @@ class TransactionTestCase(TestCase):
 
     def test_transaction_public_key_exception(self):
         transaction = Transaction(in_address='addr1', out_address='addr2', amount=10.50,
-                                  public_key=TEST_ANOTHER_PUBLIC_KEY_HEX)
+                                  public_key=TEST_ANOTHER_PUBLIC_KEY)
         self.assertRaises(TransactionInvalidPublicKeyException,
                           transaction.signing, TEST_PRIVATE_KEY_BYTES)
 

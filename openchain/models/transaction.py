@@ -43,7 +43,7 @@ class Transaction(Model):
         signing_key = SigningKey.from_string(private_key, curve=SECP256k1)
         if self.public_key is None:
             self.public_key = signing_key.verifying_key
-        elif self.public_key != signing_key.verifying_key: # check pre-assigned key
+        elif self.public_key.to_string() != signing_key.verifying_key.to_string():  # check pre-assigned key
             raise TransactionInvalidPublicKeyException
         if self.signature is None:
             self.signature = signing_key.sign(hashed_raw_transaction)

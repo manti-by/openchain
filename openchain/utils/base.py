@@ -1,7 +1,7 @@
 import hashlib
 
 
-def base58encode(n):
+def base58encode(n: str) -> str:
     b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
     result = ''
     while n > 0:
@@ -10,15 +10,14 @@ def base58encode(n):
     return result
 
 
-# Will be used to decode raw bytes and then encode them to the base58
-def base256decode(s):
+def base256decode(s: str) -> str:
     result = 0
     for c in s:
         result = result * 256 + ord(c)
     return result
 
 
-def countLeadingZeroes(s):
+def count_leading_zeroes(s: str) -> int:
     count = 0
     for c in s:
         if c == '\0':
@@ -28,8 +27,8 @@ def countLeadingZeroes(s):
     return count
 
 
-def base58CheckEncode(prefix, payload):
+def base58check_encode(prefix: int, payload: str) -> str:
     s = chr(prefix) + payload
     checksum = hashlib.sha256(hashlib.sha256(s).digest()).digest()[0:4]
     result = s + checksum
-    return '1' * countLeadingZeroes(result) + base58encode(base256decode(result))
+    return '1' * count_leading_zeroes(result) + base58encode(base256decode(result))
