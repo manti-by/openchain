@@ -5,10 +5,7 @@ from ecdsa.keys import BadSignatureError
 from hashlib import sha256
 
 from openchain.models.base import Model, Manager
-
-
-class TransactionException(Exception):
-    """Transaction has invalid signature"""
+from openchain.models.exceptions import TransactionInvalidPublicKeyException, TransactionInvalidSignatureException
 
 
 class TransactionManager(Manager):
@@ -26,7 +23,7 @@ class Transaction(Model):
     objects = TransactionManager()
 
     def __init__(self, in_address: str, out_address: str, amount: float,
-                 public_key: str=None, signature: str=None):
+                 public_key: VerifyingKey=None, signature: str=None):
         self.in_address = in_address
         self.out_address = out_address
         self.amount = amount
@@ -34,7 +31,7 @@ class Transaction(Model):
         self.signature = signature
 
     @property
-    def data(self):
+    def data(self) -> bytes:
         return json.dumps({
             'in_address': self.in_address,
             'out_address': self.out_address,
@@ -44,27 +41,30 @@ class Transaction(Model):
     def signing(self, private_key: bytes):
         hashed_raw_transaction = sha256(sha256(self.data).digest()).digest()
         signing_key = SigningKey.from_string(private_key, curve=SECP256k1)
-        self.public_key = signing_key.verifying_key.to_string()
-        self.signature = signing_key.sign(hashed_raw_transaction)
+        if self.public_key is None:
+            self.public_key = signing_key.verifying_key
+        elif self.public_key != signing_key.verifying_key: # check pre-assigned key
+            raise TransactionInvalidPublicKeyException
+        if self.signature is None:
+            self.signature = signing_key.sign(hashed_raw_transaction)
 
     @property
     def is_valid(self) -> bool:
         if self.public_key is not None and self.signature is not None:
             try:
-                verifying_key = VerifyingKey.from_string(self.public_key, curve=SECP256k1)
                 hashed_raw_transaction = sha256(sha256(self.data).digest()).digest()
-                return verifying_key.verify(self.signature, hashed_raw_transaction)
+                return self.public_key.verify(self.signature, hashed_raw_transaction)
             except BadSignatureError:
                 pass
         return False
 
     @property
-    def pk(self):
+    def pk(self) -> str:
         return self.signature
 
     def __dict__(self) -> dict:
         if not self.is_valid:
-            raise TransactionException
+            raise TransactionInvalidSignatureException
         return {
             'in_address': self.in_address,
             'out_address': self.out_address,
