@@ -1,7 +1,7 @@
 import json
 
 from ecdsa import SigningKey, VerifyingKey, SECP256k1
-from ecdsa.util import sigencode_der, sigdecode_der
+from ecdsa.keys import BadSignatureError
 from hashlib import sha256
 
 from openchain.models.base import Model, Manager
@@ -33,23 +33,29 @@ class Transaction(Model):
         self.public_key = public_key
         self.signature = signature
 
-    def signing(self, private_key: str):
-        data = json.dumps({
+    @property
+    def data(self):
+        return json.dumps({
             'in_address': self.in_address,
             'out_address': self.out_address,
             'amount': self.amount
         }).encode()
-        hashed_raw_transaction = sha256(sha256(data).digest()).digest()
-        signing_key = SigningKey.from_string(private_key, curve=SECP256k1)
 
+    def signing(self, private_key: bytes):
+        hashed_raw_transaction = sha256(sha256(self.data).digest()).digest()
+        signing_key = SigningKey.from_string(private_key, curve=SECP256k1)
         self.public_key = signing_key.verifying_key.to_string()
-        self.signature = signing_key.sign_digest(hashed_raw_transaction, sigencode=sigencode_der)
+        self.signature = signing_key.sign(hashed_raw_transaction)
 
     @property
     def is_valid(self) -> bool:
         if self.public_key is not None and self.signature is not None:
-            verifying_key = VerifyingKey.from_string(self.public_key, curve=SECP256k1)
-            return verifying_key.verify(self.signature, verifying_key.to_string())
+            try:
+                verifying_key = VerifyingKey.from_string(self.public_key, curve=SECP256k1)
+                hashed_raw_transaction = sha256(sha256(self.data).digest()).digest()
+                return verifying_key.verify(self.signature, hashed_raw_transaction)
+            except BadSignatureError:
+                pass
         return False
 
     @property

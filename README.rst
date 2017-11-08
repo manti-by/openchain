@@ -8,7 +8,7 @@ Library for creating blockchain networks.
 
 Author: Alexander Chaika <manti.by@gmail.com>
 
-Source link: https://bitbucket.org/manti_by/open_blockchain
+Source link: https://bitbucket.org/manti_by/openchain
 
 Requirements:
 
@@ -21,7 +21,7 @@ Installation
 
 From `PyPi <https://pypi.org/>`_
 
-        $ pip install open_blockchain
+        $ pip install openchain
         
 From `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
 
