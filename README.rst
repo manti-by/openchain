@@ -14,7 +14,7 @@ Requirements:
 
 - Base - ECSDA, LevelDB
 - Development - Flake8
-- Examples - Tornado, PyP2P
+- Examples - Docker, Tornado, PyP2P
 
 Installation
 ------------
