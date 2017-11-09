@@ -14,14 +14,14 @@ Source link: https://bitbucket.org/manti_by/openchain
 
 Requirements:
 
-- Base - ECSDA, LevelDB
+- Base - Python 3.5+, ECSDA, LevelDB
 - Development - Flake8
 - Examples - Docker, Tornado, PyP2P
 
 Installation
 ------------
 
-From `PyPi <https://pypi.org/>`_
+From `PyPi <https://pypi.python.org/pypi/openchain>`_
 
         $ pip install openchain
         
