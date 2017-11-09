@@ -1,7 +1,7 @@
 import logging
 import tornado.web
 
-from openchain.models.client import ClientManager
+from openchain.models.client import Client
 from openchain.utils.network import get_client_id
 
 logger = logging.getLogger()
@@ -11,9 +11,9 @@ class PoolListener(tornado.web.RequestHandler):
 
     def process_request(self):
         try:
-            cm = ClientManager()
-            cm.update(get_client_id(self.request))
-            return cm.get()
+            client = Client(get_client_id(self.request))
+            client.save()
+            return client.objects.get()
         except Exception as e:
             logger.error(e)
 
