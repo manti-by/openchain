@@ -1,0 +1,4 @@
+tornado>=4.5,<4.6
+pyp2p>=0.8,<0.9
+leveldb>=0.20,<0.21
+-e git+https://bitbucket.org/manti_by/openchain@develop#egg=openchain

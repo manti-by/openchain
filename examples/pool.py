@@ -1,10 +1,11 @@
 import logging
 
-from tornado import web, ioloop
+import tornado.ioloop
+import tornado.web
 
-from .common.conf import settings
-from .common.utils import init_logger
-from .listener.pool import PoolListener
+from examples.common.conf import settings
+from examples.common.utils import init_logger
+from examples.listener.pool import PoolListener
 
 logger = logging.getLogger()
 
@@ -14,7 +15,7 @@ if __name__ == "__main__":
     init_logger(settings)
     logger.debug('Starting pool application')
 
-    app = web.Application([
+    app = tornado.web.Application([
         (r"/", PoolListener),
     ])
 
@@ -22,4 +23,4 @@ if __name__ == "__main__":
 
     logger.debug('Listening for connections on {}:{}'.format(settings['pool_server']['ip'],
                                                              settings['pool_server']['port']))
-    ioloop.IOLoop.current().start()
+    tornado.ioloop.IOLoop.current().start()

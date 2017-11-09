@@ -16,7 +16,7 @@ Requirements:
 
 - Base - ECSDA, LevelDB
 - Development - Flake8
-- Examples - Tornado, PyP2P
+- Examples - Docker, Tornado, PyP2P
 
 Installation
 ------------
@@ -32,3 +32,8 @@ From `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
         $ cd openchain/
 
         $ python setup.py install
+
+Environment variables
+---------------------
+
+- $DATABASE_PATH - path to store LevelDB files

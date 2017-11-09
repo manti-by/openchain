@@ -1,0 +1,52 @@
+version: "3"
+services:
+  pool:
+    image: mantiby/openchain:latest
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8000:80"
+    networks:
+      - webnet
+    environment:
+    - ROLE=pool
+  miner:
+    deploy:
+      mode: replicated
+      replicas: 3
+      resources:
+        limits:
+          cpus: "2"
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8000:80"
+    networks:
+      - webnet
+    environment:
+    - ROLE=miner
+  wallet:
+    deploy:
+      mode: replicated
+      replicas: 5
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8000:80"
+    networks:
+      - webnet
+    environment:
+    - ROLE=wallet
+networks:
+  webnet:

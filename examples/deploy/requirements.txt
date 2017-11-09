@@ -1,4 +1,0 @@
-tornado>=4.5,<4.6
-pyp2p>=0.8,<0.9
-leveldb>=0.20,<0.21
-openchain>=0.1,<0.2
