@@ -30,3 +30,8 @@ From `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
         $ cd openchain/
 
         $ python setup.py install
+
+Environment variables
+---------------------
+
+- $DATABASE_PATH - path to store LevelDB files

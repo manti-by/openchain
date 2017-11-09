@@ -1,3 +1,4 @@
+import os
 import json
 import leveldb
 import xxhash
@@ -9,7 +10,8 @@ class Manager:
     qs = []
 
     def __init__(self):
-        filename = './db/{}'.format(self.__class__.__name__.lower())
+        db_path = os.getenv('DATABASE_PATH', '/var/tmp/leveldb/')
+        filename = os.path.join(db_path, self.__class__.__name__.lower())
         self.db = leveldb.LevelDB(filename)
         for key, value in self.db.RangeIter():
             data = json.loads(value.decode())

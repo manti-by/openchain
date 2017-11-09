@@ -9,19 +9,19 @@ ADD . /app
 
 # Install any needed packages specified in requirements.txt
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y software-properties-common
+RUN apt-get install -y software-properties-common apt-utils
 RUN apt-get install -y build-essential git python3 python3-dev python3-pip python3-venv
 
 RUN python3 -m pip install pip --upgrade
 RUN python3 -m pip install wheel
 
-RUN pip3 install --trusted-host pypi.python.org -r deploy/requirements.txt
+RUN pip3 install --trusted-host pypi.python.org -r requirements.txt
 
 # Make port 80 available to the world outside this container
 EXPOSE 8000
 
 # Define environment variable
-ENV NAME Pool
+ENV ROLE pool
 
-# Run pool.py when the container launches
-CMD ["python3", "pool.py"]
+# Run app handler when the container launches
+CMD ["python3", "run.py"]
