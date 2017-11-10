@@ -15,15 +15,18 @@ class Manager:
 
     def __init__(self):
         if self.db is None:
-            self.ns = self.__class__.__name__.lower()
+            self.ns = self.__class__.__name__.replace('Manager', '').lower()
             self.db = LevelDBAdapter().connect(self.ns)
+
+    def load(self):
+        for key, value in self.db.RangeIter():
+            data = json.loads(value.decode())
+            self.queryset.append(ModelFactory.get_model(self.ns)(**data))
+        self.loaded = True
 
     def get(self) -> list:
         if not self.loaded:
-            self.loaded = True
-            for key, value in self.db.RangeIter():
-                data = json.loads(value.decode())
-                self.queryset.append(ModelFactory.get_model(self.ns)(**data))
+            self.load()
         return self.queryset
 
     def set(self, qs: list, commit: bool=False):

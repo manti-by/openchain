@@ -14,12 +14,11 @@ class ModelFactory:
         try:
             from openchain.models.logentry import LogEntry
         except ImportError:
-
             LogEntry = sys.modules[__package__ + '.logentry.LogEntry']
 
         map = {
-            'clientmanager': Client,
-            'logentrymanager': LogEntry,
+            'client': Client,
+            'logentry': LogEntry,
         }
 
         if name in map:
