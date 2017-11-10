@@ -7,7 +7,7 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.25"
           memory: 256M
       restart_policy:
         condition: on-failure
@@ -15,6 +15,21 @@ services:
       - webnet
     environment:
     - ROLE=pool
+  logger:
+    image: mantiby/openchain:latest
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+    networks:
+      - webnet
+    environment:
+    - ROLE=logger
   miner:
     image: mantiby/openchain:latest
     deploy:
