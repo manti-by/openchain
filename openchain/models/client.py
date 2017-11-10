@@ -1,9 +1,6 @@
 import time
-import logging
 
 from openchain.models.base import Model, Manager
-
-logger = logging.getLogger()
 
 
 class ClientManager(Manager):

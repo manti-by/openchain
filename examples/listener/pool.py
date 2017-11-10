@@ -2,24 +2,23 @@ import logging
 import tornado.web
 
 from openchain.models.client import Client
-from openchain.utils.network import get_client_id
 
 logger = logging.getLogger()
 
 
 class PoolListener(tornado.web.RequestHandler):
 
-    def process_request(self):
+    def get(self):
+        logger.debug('[POOL] Processing get request')
+
         try:
-            client = Client(get_client_id(self.request))
+            client_id = self.request.headers.get('X-Client-STUN-Address', self.request.remote_ip)
+            client = Client(client_id)
             client.save()
-            return client.objects.get()
+            data = client.objects.get()
         except Exception as e:
             logger.error(e)
-
-    def get(self):
-        logger.info('Processing get request')
-        data = self.process_request()
+            data = e
 
         self.set_header('Content-Type', 'application/json')
         self.write(data.__bytes__())
