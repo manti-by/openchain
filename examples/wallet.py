@@ -23,9 +23,9 @@ def failure(connection):
 
 
 if __name__ == "__main__":
+    init_logger(settings)
     logger.debug('Starting wallet application')
 
-    init_logger(settings)
     ip, port, interface = get_address()
 
     client_dht = DHT()

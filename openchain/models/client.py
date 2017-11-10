@@ -5,18 +5,15 @@ from openchain.models.base import Model, Manager
 
 class ClientManager(Manager):
 
-    def append(self, client: object, commit: bool=False):
+    def append(self, item: object, commit: bool=False):
         updated = False
         for c in self.get():
-            if client == c:
+            if item == c:
                 updated = True
-                client.timestamp = time.time()
+                item.timestamp = time.time()
         if not updated:
-            self.qs.append(client)
+            self.queryset.append(item)
         self.save()
-
-    def model_from_dict(self, data):
-        return Client(**data)
 
 
 class Client(Model):
@@ -24,7 +21,7 @@ class Client(Model):
     client_id = None
     timestamp = None
 
-    objects = ClientManager
+    objects = ClientManager()
 
     def __init__(self, client_id: str, timestamp: float=None):
         self.client_id = client_id

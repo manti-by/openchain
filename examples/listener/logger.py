@@ -18,7 +18,7 @@ class LoggerListener(tornado.web.RequestHandler):
                 'data': LogEntry.objects.get()
             }
         except Exception as e:
-            logger.error(e)
+            logger.error('[LOGGER] {}'.format(e))
             result = {'status': 500, 'message': e}
 
         self.set_header('Content-Type', 'application/json')
@@ -35,7 +35,7 @@ class LoggerListener(tornado.web.RequestHandler):
                 log_entry.save()
                 result = {'status': 200, 'message': 'OK'}
         except Exception as e:
-            logger.error(e)
+            logger.error('[LOGGER] {}'.format(e))
             result = {'status': 500, 'message': e}
 
         self.set_header('Content-Type', 'application/json')

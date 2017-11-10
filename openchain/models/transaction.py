@@ -5,13 +5,12 @@ from ecdsa.keys import BadSignatureError
 from hashlib import sha256
 
 from openchain.models.base import Model, Manager
-from openchain.models.exceptions import TransactionInvalidPublicKeyException, TransactionInvalidSignatureException
+from openchain.models.exception import TransactionInvalidPublicKeyException, TransactionInvalidSignatureException
 
 
 class TransactionManager(Manager):
 
-    def model_from_dict(self, data):
-        return Transaction(**data)
+    pass
 
 
 class Transaction(Model):

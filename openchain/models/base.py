@@ -1,59 +1,61 @@
-import os
 import json
-import leveldb
 import xxhash
+
+from openchain.models.database import LevelDBAdapter
+from openchain.models.factory import ModelFactory
 
 
 class Manager:
 
+    ns = None
     db = None
-    qs = []
+
+    queryset = []
+    loaded = False
 
     def __init__(self):
-        db_path = os.getenv('DATABASE_PATH', '/var/tmp/leveldb/')
-        filename = os.path.join(db_path, self.__class__.__name__.lower())
-        self.db = leveldb.LevelDB(filename)
-        for key, value in self.db.RangeIter():
-            data = json.loads(value.decode())
-            self.append(self.model_from_dict(data))
+        if self.db is None:
+            self.ns = self.__class__.__name__.lower()
+            self.db = LevelDBAdapter().connect(self.ns)
 
     def get(self) -> list:
-        return self.qs
+        if not self.loaded:
+            self.loaded = True
+            for key, value in self.db.RangeIter():
+                data = json.loads(value.decode())
+                self.queryset.append(ModelFactory.get_model(self.ns)(**data))
+        return self.queryset
 
     def set(self, qs: list, commit: bool=False):
-        self.qs = qs
+        self.queryset = qs
         if commit:
             self.save()
 
     def delete(self, item: dict, commit: bool=False):
-        for i in self.qs:
+        for i in self.queryset:
             if i == item:
                 del i
         if commit:
             self.save()
 
     def append(self, item: object, commit: bool=False):
-        self.qs.append(item)
+        self.queryset.append(item)
         if commit:
             self.save()
 
     def save(self):
-        batch = leveldb.WriteBatch()
-        for item in self.qs:
+        batch = LevelDBAdapter.write_batch()
+        for item in self.queryset:
             index = xxhash.xxh64()
             index.update(item.__bytes__)
-            self.db.Put(index.digest(), item.__bytes__)
+            batch.Put(index.digest(), item.__bytes__)
         self.db.Write(batch, sync=True)
-
-    def model_from_dict(self, data):
-        raise NotImplementedError
 
 
 class Model:
 
     data = None
-    objects = Manager
-    manager = None
+    objects = Manager()
 
     @property
     def __dict__(self) -> dict:
@@ -68,6 +70,4 @@ class Model:
         return self.__str__.encode()
 
     def save(self):
-        if self.manager is None:
-            self.manager = self.objects()
-        self.manager.append(self, commit=True)
+        self.objects.append(item=self, commit=True)

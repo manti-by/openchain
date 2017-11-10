@@ -8,8 +8,7 @@ from openchain.models.base import Model, Manager
 
 class WalletManager(Manager):
 
-    def model_from_dict(self, data):
-        return Wallet(**data)
+    pass
 
 
 class Wallet(Model):

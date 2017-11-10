@@ -11,9 +11,8 @@ logger = logging.getLogger()
 
 
 if __name__ == "__main__":
-
     init_logger(settings)
-    logger.debug('Starting pool application')
+    logger.debug('[POOL] Starting pool application')
 
     app = tornado.web.Application([
         (r"/", PoolListener),
@@ -21,6 +20,6 @@ if __name__ == "__main__":
 
     app.listen(settings['pool_server']['port'], address=settings['pool_server']['ip'])
 
-    logger.debug('Listening for connections on {}:{}'.format(settings['pool_server']['ip'],
-                                                             settings['pool_server']['port']))
+    logger.debug('[POOL] Listening for connections on {}:{}'.format(settings['pool_server']['ip'],
+                                                                    settings['pool_server']['port']))
     tornado.ioloop.IOLoop.current().start()

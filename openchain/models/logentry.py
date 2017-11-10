@@ -4,9 +4,7 @@ from openchain.models.base import Model, Manager
 
 
 class LogEntryManager(Manager):
-
-    def model_from_dict(self, data):
-        return LogEntry(**data)
+    pass
 
 
 class LogEntry(Model):
@@ -14,7 +12,7 @@ class LogEntry(Model):
     message = None
     timestamp = None
 
-    objects = LogEntryManager
+    objects = LogEntryManager()
 
     def __init__(self, message: str, timestamp: float=None):
         self.message = message

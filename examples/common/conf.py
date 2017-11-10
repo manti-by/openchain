@@ -18,17 +18,17 @@ settings = {
         'loggers': {
             '': {
                 'handlers': ['console'],
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'propagate': True
             },
         }
     },
     'pool_server': {
-        'ip': '192.168.99.100',
+        'ip': '127.0.0.1',
         'port': 8000
     },
-    'logger_server': {
-        'ip': '192.168.99.101',
+    'log_server': {
+        'ip': '127.0.0.1',
         'port': 8000
     }
 }

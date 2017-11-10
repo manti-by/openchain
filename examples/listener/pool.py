@@ -17,7 +17,7 @@ class PoolListener(tornado.web.RequestHandler):
             client.save()
             data = client.objects.get()
         except Exception as e:
-            logger.error(e)
+            logger.error('[POOL] {}'.format(e))
             data = e
 
         self.set_header('Content-Type', 'application/json')

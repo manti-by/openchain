@@ -11,7 +11,6 @@ logger = logging.getLogger()
 
 
 if __name__ == "__main__":
-
     init_logger(settings)
     logger.debug('[LOGGER] Starting logger application')
 
