@@ -28,7 +28,9 @@ From `PyPi <https://pypi.python.org/pypi/openchain>`_
 From `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
 
     $ git clone git@bitbucket.org:manti_by/openchain.git
+
     $ cd openchain/
+
     $ python setup.py install
 
 Environment variables
@@ -40,6 +42,9 @@ Run the examples with Docker
 ----------------------------
 
     $ cd examples/
+
     $ docker build -t mantiby/openchain:latest .
+
     $ docker swarm init
+
     $ docker stack deploy -c docker-compose.yml openchain
