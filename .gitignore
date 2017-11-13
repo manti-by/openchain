@@ -13,3 +13,6 @@ examples/*.log
 
 /build/
 /dist/
+
+flake8-report.txt
+coverage-report.txt
