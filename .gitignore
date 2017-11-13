@@ -14,5 +14,5 @@ examples/*.log
 /build/
 /dist/
 
-flake8-report.txt
-coverage-report.txt
+flake8-report
+coverage-report
