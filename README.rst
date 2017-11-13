@@ -48,3 +48,12 @@ Run the examples with Docker
     $ docker swarm init
 
     $ docker stack deploy -c docker-compose.yml openchain
+
+Run unit tests and coverage
+---------------------------
+
+    $ python -m unittest discover -s openchain/tests/ -p '*_tests.py'
+
+    $ coverage run -m unittest discover -s openchain/tests/ -p '*_tests.py'
+
+    $ coverage report -m

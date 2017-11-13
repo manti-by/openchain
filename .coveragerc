@@ -1,0 +1,5 @@
+[run]
+omit =
+    build/*
+    examples/*
+    */venv/*
