@@ -32,21 +32,10 @@ class Manager:
             self.load()
         return self.queryset
 
-    def set(self, qs: list, commit: bool=False):
+    def set(self, qs: list):
+        self.delete_all()
         self.queryset = qs
-        if commit:
-            self.save()
-
-    def delete(self, item: dict, commit: bool=False):
-        if item in self.queryset:
-            self.queryset.remove(item)
-        if commit:
-            self.save()
-
-    def delete_all(self, commit: bool=False):
-        self.queryset = []
-        if commit:
-            self.save()
+        self.save()
 
     def append(self, item: object, commit: bool=False):
         if not self.loaded:
@@ -55,13 +44,26 @@ class Manager:
         if commit:
             self.save()
 
+    def delete(self, item: object):
+        if item in self.queryset:
+            self.queryset.remove(item)
+            self.db_adapter.delete(self.namespace, next(iter(item.__dict__)).encode())
+
+    def delete_all(self):
+        self.queryset = []
+        self.db_adapter.batch_delete(self.namespace, self.compact_list)
+
     def save(self):
+        self.db_adapter.batch_put(self.namespace, self.compact_list)
+
+    @property
+    def compact_list(self):
         compact_list = []
         for item in self.queryset:
             index = xxhash.xxh64()
             index.update(item.__bytes__)
             compact_list.append({index.digest(): item.__bytes__})
-        self.db_adapter.write_batch(self.namespace, compact_list)
+        return compact_list
 
 
 class Model:

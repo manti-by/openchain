@@ -43,7 +43,10 @@ class AdapterTestCase(BaseTestCase):
             adapter.iterator(self.namespace)
 
         with self.assertRaises(NotImplementedError):
-            adapter.write_batch(self.namespace, [])
+            adapter.batch_put(self.namespace, [])
+
+        with self.assertRaises(NotImplementedError):
+            adapter.batch_delete(self.namespace, [])
 
     def test_plyvel_crud(self):
         adapter = PlyvelAdapter()
