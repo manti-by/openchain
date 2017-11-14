@@ -38,9 +38,8 @@ class Manager:
             self.save()
 
     def delete(self, item: dict, commit: bool=False):
-        for i in self.queryset:
-            if i == item:
-                del i
+        if item in self.queryset:
+            self.queryset.remove(item)
         if commit:
             self.save()
 

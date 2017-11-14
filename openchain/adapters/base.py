@@ -33,7 +33,3 @@ class BaseAdapter(metaclass=Singleton):
 
     def write_batch(self, namespace: str, item_list: list) -> callable:
         raise NotImplementedError
-
-    @staticmethod
-    def drop_all_and_close_connection(accidental_protection_token: bytes):
-        raise NotImplementedError

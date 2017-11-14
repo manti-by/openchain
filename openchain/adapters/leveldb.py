@@ -28,12 +28,3 @@ class LevelDBAdapter(BaseAdapter):
             for key, value in [i.items() for i in items]:
                 batch.Put(key, value)
             self.connection_set[namespace].Write(batch)
-
-    @staticmethod
-    def drop_all_and_close_connection(accidental_protection_token):
-        if accidental_protection_token != b'Accidental protection token':
-            return
-        for namespace, connection in LevelDBAdapter.connection_set.items():
-            filename = os.path.join(LevelDBAdapter.db_path, namespace)
-            leveldb.DestroyDB(filename)
-            del LevelDBAdapter.connection_set[namespace]

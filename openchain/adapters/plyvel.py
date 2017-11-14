@@ -28,13 +28,3 @@ class PlyvelAdapter(BaseAdapter):
             for item in item_list:
                 for key, value in item.items():
                     batch.put(key, value)
-
-    @staticmethod
-    def drop_all_and_close_connection(accidental_protection_token):
-        if accidental_protection_token != b'Accidental protection token':
-            return
-        for namespace, connection in PlyvelAdapter.connection_set.items():
-            connection.close()
-            filename = os.path.join(PlyvelAdapter.db_path, namespace)
-            plyvel.destroy_db(filename)
-        PlyvelAdapter.connection_set = {}
