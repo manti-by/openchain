@@ -1,28 +1,31 @@
 import json
 import xxhash
 
-from openchain.models.database import LevelDBAdapter
+from openchain.adapters.plyvel import PlyvelAdapter
 from openchain.models.factory import ModelFactory
 
 
 class Manager:
 
-    ns = None
-    db = None
+    namespace = None
+    db_adapter = PlyvelAdapter()
 
-    queryset = []
+    queryset = None
     loaded = False
 
     def __init__(self):
-        if self.db is None:
-            self.ns = self.__class__.__name__.replace('Manager', '').lower()
-            self.db = LevelDBAdapter().connect(self.ns)
+        self.namespace = self.__class__.__name__.lower()
+        if self.namespace != 'manager':
+            self.namespace = self.namespace.replace('manager', '')
+        self.db_adapter.connect(self.namespace)
 
     def load(self):
-        for key, value in self.db.RangeIter():
-            data = json.loads(value.decode())
-            self.queryset.append(ModelFactory.get_model(self.ns)(**data))
-        self.loaded = True
+        if not self.loaded:
+            self.queryset = []
+            for key, value in self.db_adapter.iterator(self.namespace):
+                data = json.loads(value.decode())
+                self.queryset.append(ModelFactory.get_model(self.namespace)(**data))
+            self.loaded = True
 
     def get(self) -> list:
         if not self.loaded:
@@ -41,23 +44,29 @@ class Manager:
         if commit:
             self.save()
 
+    def delete_all(self, commit: bool=False):
+        self.queryset = []
+        if commit:
+            self.save()
+
     def append(self, item: object, commit: bool=False):
+        if not self.loaded:
+            self.load()
         self.queryset.append(item)
         if commit:
             self.save()
 
     def save(self):
-        batch = LevelDBAdapter.write_batch()
+        compact_list = []
         for item in self.queryset:
             index = xxhash.xxh64()
             index.update(item.__bytes__)
-            batch.Put(index.digest(), item.__bytes__)
-        self.db.Write(batch, sync=True)
+            compact_list.append({index.digest(): item.__bytes__})
+        self.db_adapter.write_batch(self.namespace, compact_list)
 
 
 class Model:
 
-    data = None
     objects = Manager()
 
     @property
@@ -73,4 +82,4 @@ class Model:
         return self.__str__.encode()
 
     def save(self):
-        self.objects.append(item=self, commit=True)
+        self.objects.append(self, True)

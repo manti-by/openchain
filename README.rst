@@ -52,6 +52,8 @@ Run the examples with Docker
 Run unit tests and coverage
 ---------------------------
 
+    $ export DATABASE_PATH='/var/tmp/leveldb/test/'
+
     $ python -m unittest discover -s openchain/tests/ -p '*_tests.py'
 
     $ coverage run -m unittest discover -s openchain/tests/ -p '*_tests.py'
