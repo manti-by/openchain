@@ -6,7 +6,8 @@ About
 
 Library for creating blockchain networks.
 
-**WARNING:** Currently library in **Alpha** development status. It's a concept of vision, not working library yet.
+**WARNING:** Currently library in **Alpha** development status.
+It's a concept of vision, not working library yet.
 
 Author: Alexander Chaika <manti.by@gmail.com>
 
@@ -14,8 +15,8 @@ Source link: https://bitbucket.org/manti_by/openchain
 
 Requirements:
 
-- Base - Python 3.5+, ECSDA, LevelDB
-- Development - Flake8
+- Base - Python 3.5+, ECSDA, LevelDB/Plyvel
+- Development - Flake8, Coverage
 - Examples - Docker, Tornado, PyP2P
 
 Installation
@@ -51,6 +52,8 @@ Run the examples with Docker
 
 Run unit tests and coverage
 ---------------------------
+
+    $ mkdir -p /var/tmp/leveldb/test/
 
     $ export DATABASE_PATH='/var/tmp/leveldb/test/'
 
