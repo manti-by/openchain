@@ -46,14 +46,21 @@ jobs:
             flake8 ./
 
       - run:
+          name: create db dir
+          command: |
+            mkdir -p /var/tmp/leveldb/test/
+
+      - run:
           name: run tests
           command: |
             . venv/bin/activate
+            export DATABASE_PATH='/var/tmp/leveldb/test/'
             python -m unittest discover -s openchain/tests/ -p '*_tests.py'
 
       - run:
           name: run coverage
           command: |
             . venv/bin/activate
+            export DATABASE_PATH='/var/tmp/leveldb/test/'
             coverage run -m unittest discover -s openchain/tests/ -p '*_tests.py'
             coverage report --fail-under=75 -m

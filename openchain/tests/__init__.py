@@ -1,5 +1,3 @@
-import os
-
 from unittest import TestCase
 from ecdsa import SigningKey, VerifyingKey, SECP256k1
 

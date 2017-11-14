@@ -25,7 +25,7 @@ class PlyvelAdapter(BaseAdapter):
 
     def write_batch(self, namespace, item_list):
         with self.connection_set[namespace].write_batch() as batch:
-            for item  in item_list:
+            for item in item_list:
                 for key, value in item.items():
                     batch.put(key, value)
 
