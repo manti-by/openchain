@@ -37,6 +37,13 @@ class Manager:
         self.queryset = qs
         self.save()
 
+    def search(self, index) -> object:
+        if not self.loaded:
+            self.load()
+        for item in self.queryset:
+            if next(iter(item)) == index:
+                return item
+
     def append(self, item: object, commit: bool=False):
         if not self.loaded:
             self.load()

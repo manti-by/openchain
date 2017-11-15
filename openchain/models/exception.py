@@ -1,3 +1,8 @@
+
+class BlockInvalidException(Exception):
+    """Transaction has invalid data hash"""
+
+
 class TransactionInvalidPublicKeyException(Exception):
     """Transaction has invalid public key"""
 

@@ -19,6 +19,7 @@ class Transaction(Model):
     in_address = None
     out_address = None
     amount = None
+    data_hash = None
     public_key = None
     signature = None
 
@@ -45,20 +46,22 @@ class Transaction(Model):
         return json.dumps(ordered).encode()
 
     def signing(self, private_key: str):
-        hashed_raw_transaction = sha256(sha256(self.data).digest()).digest()
+        self.data_hash = sha256(sha256(self.data).digest()).digest()
         signing_key = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
         if self.public_key is None:
             self.public_key = signing_key.verifying_key
         elif self.public_key.to_string() != signing_key.verifying_key.to_string():  # check pre-assigned key
             raise TransactionInvalidPublicKeyException
         if self.signature is None:
-            self.signature = signing_key.sign(hashed_raw_transaction)
+            self.signature = signing_key.sign(self.data_hash)
 
     @property
     def is_valid(self) -> bool:
         if self.public_key is not None and self.signature is not None:
             try:
                 hashed_raw_transaction = sha256(sha256(self.data).digest()).digest()
+                if self.data_hash != hashed_raw_transaction:
+                    return False
                 return self.public_key.verify(self.signature, hashed_raw_transaction)
             except BadSignatureError:
                 return False

@@ -1,15 +1,27 @@
 import json
 import time
+import collections
 
 from hashlib import sha256
 
 from openchain.models.base import Model, Manager
+from openchain.models.blockchain import Blockchain
+from openchain.models.exception import BlockInvalidException
 
 
 class BlockManager(Manager):
 
-    def model_from_dict(self, data):
-        return Block(**data)
+    @property
+    def blockchain(self):
+        return Blockchain(self.queryset)
+
+    def append(self, item, commit=False):
+        prev_block = self.search(item.prev_block)
+        if prev_block is not None and item.is_valid:
+            prev_block.next_block = item.data_hash
+            prev_block.save()
+            self.queryset.append(item)
+            self.save()
 
 
 class Block(Model):
@@ -36,27 +48,14 @@ class Block(Model):
             self.timestamp = timestamp
 
     @property
-    def __dict__(self):
-        return {
-            'prev_block': self.prev_block,
-            'next_block': self.next_block,
-            'data_hash': self.data_hash,
-            'nonce': self.nonce,
-            'transactions': self.transactions,
-            'timestamp': self.timestamp
-        }
-
-    @property
-    def is_valid(self) -> bool:
-        return self.data_hash is not None
-
-    @property
     def data(self) -> bytes:
-        return json.dumps({
+        data = {
             'prev': self.prev_block,
             'transactions': self.transactions,
             'timestamp': self.timestamp
-        }).encode()
+        }
+        ordered = collections.OrderedDict(sorted(data.items()))
+        return json.dumps(ordered).encode()
 
     def generate(self):
         """
@@ -82,7 +81,22 @@ class Block(Model):
         guess_hash = sha256(guess).hexdigest()
         return guess_hash[:4] == '0000'
 
-    def save(self):
+    @property
+    def is_valid(self) -> bool:
+        hashed_raw_block = sha256(sha256(self.data).digest()).digest()
+        if self.data_hash != hashed_raw_block:
+            return False
+        return self.valid_nonce(self.nonce)
+
+    @property
+    def __dict__(self):
         if not self.is_valid:
-            self.generate()
-        super().save()
+            raise BlockInvalidException
+        return {
+            'prev_block': self.prev_block,
+            'next_block': self.next_block,
+            'data_hash': self.data_hash,
+            'nonce': self.nonce,
+            'transactions': self.transactions,
+            'timestamp': self.timestamp
+        }
