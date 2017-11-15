@@ -31,5 +31,8 @@ class BaseAdapter(metaclass=Singleton):
     def iterator(self, namespace: str) -> callable:
         raise NotImplementedError
 
-    def write_batch(self, namespace: str, item_list: list) -> callable:
+    def batch_put(self, namespace: str, item_list: list) -> callable:
+        raise NotImplementedError
+
+    def batch_delete(self, namespace: str, item_list: list) -> callable:
         raise NotImplementedError

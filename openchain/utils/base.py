@@ -6,7 +6,7 @@ def base58encode(n: str) -> str:
     result = ''
     while n > 0:
         result = b58[n % 58] + result
-        n /= 58
+        n //= 58
     return result
 
 
@@ -29,6 +29,6 @@ def count_leading_zeroes(s: str) -> int:
 
 def base58check_encode(prefix: int, payload: str) -> str:
     s = chr(prefix) + payload
-    checksum = hashlib.sha256(hashlib.sha256(s).digest()).digest()[0:4]
-    result = s + checksum
+    checksum = hashlib.sha256(s.encode()).digest()[0:4]
+    result = s + checksum.hex()
     return '1' * count_leading_zeroes(result) + base58encode(base256decode(result))

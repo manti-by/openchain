@@ -23,8 +23,15 @@ class PlyvelAdapter(BaseAdapter):
     def iterator(self, namespace):
         return self.connection_set[namespace].iterator()
 
-    def write_batch(self, namespace, item_list):
+    def batch_put(self, namespace, item_list):
         with self.connection_set[namespace].write_batch() as batch:
             for item in item_list:
                 for key, value in item.items():
                     batch.put(key, value)
+            batch.write()
+
+    def batch_delete(self, namespace, item_list):
+        with self.connection_set[namespace].write_batch() as batch:
+            for item in item_list:
+                batch.delete(next(iter(item)))
+            batch.write()

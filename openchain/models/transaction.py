@@ -1,8 +1,9 @@
 import json
+import collections
 
+from hashlib import sha256
 from ecdsa import SigningKey, VerifyingKey, SECP256k1
 from ecdsa.keys import BadSignatureError
-from hashlib import sha256
 
 from openchain.models.base import Model, Manager
 from openchain.models.exception import TransactionInvalidPublicKeyException, TransactionInvalidSignatureException
@@ -21,27 +22,31 @@ class Transaction(Model):
     public_key = None
     signature = None
 
-    objects = TransactionManager
+    objects = TransactionManager()
 
     def __init__(self, in_address: str, out_address: str, amount: float,
-                 public_key: VerifyingKey=None, signature: str=None):
+                 public_key: str=None, signature: str=None):
         self.in_address = in_address
         self.out_address = out_address
         self.amount = amount
-        self.public_key = public_key
-        self.signature = signature
+        if public_key is not None:
+            self.public_key = VerifyingKey.from_string(bytes.fromhex(public_key), curve=SECP256k1)
+        if signature is not None:
+            self.signature = bytes.fromhex(signature)
 
     @property
     def data(self) -> bytes:
-        return json.dumps({
+        data = {
             'in_address': self.in_address,
             'out_address': self.out_address,
             'amount': self.amount
-        }).encode()
+        }
+        ordered = collections.OrderedDict(sorted(data.items()))
+        return json.dumps(ordered).encode()
 
-    def signing(self, private_key: bytes):
+    def signing(self, private_key: str):
         hashed_raw_transaction = sha256(sha256(self.data).digest()).digest()
-        signing_key = SigningKey.from_string(private_key, curve=SECP256k1)
+        signing_key = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
         if self.public_key is None:
             self.public_key = signing_key.verifying_key
         elif self.public_key.to_string() != signing_key.verifying_key.to_string():  # check pre-assigned key
@@ -56,7 +61,7 @@ class Transaction(Model):
                 hashed_raw_transaction = sha256(sha256(self.data).digest()).digest()
                 return self.public_key.verify(self.signature, hashed_raw_transaction)
             except BadSignatureError:
-                pass
+                return False
         return False
 
     @property
@@ -67,6 +72,6 @@ class Transaction(Model):
             'in_address': self.in_address,
             'out_address': self.out_address,
             'amount': self.amount,
-            'public_key': self.public_key,
-            'signature': self.signature
+            'public_key': self.public_key.to_string().hex(),
+            'signature': self.signature.hex()
         }

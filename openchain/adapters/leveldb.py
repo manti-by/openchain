@@ -23,7 +23,7 @@ class LevelDBAdapter(BaseAdapter):
     def iterator(self, namespace):
         return self.connection_set[namespace].RangeIter()
 
-    def write_batch(self, namespace, items):
+    def batch_put(self, namespace, items):
         with self.connection_set[namespace].WriteBatch() as batch:
             for key, value in [i.items() for i in items]:
                 batch.Put(key, value)
