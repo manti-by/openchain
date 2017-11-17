@@ -5,12 +5,12 @@ class BlockchainNode:
 
     depth = 0
 
-    def __init__(self, block: object, prev_item: object=None, next_item: object=None):
+    def __init__(self, block: callable, prev_item: callable=None, next_item: callable=None):
         self.block = block
         self.prev_item = prev_item
         self.next_item = next_item
 
-    def calculate_depth(self):
+    def calculate_depth(self) -> int:
         if not self.next_item:
             return 0
         return self.next_item.calculate_depth() + 1
@@ -22,6 +22,10 @@ class Blockchain:
         self.collisions = []
         self.block_tree = {}
         self.block_list = block_list
+
+    @property
+    def is_valid(self) -> bool:
+        return len(self.collisions) == 0
 
     def generate_tree(self, raise_exception: bool=True):
         for block in self.block_list:

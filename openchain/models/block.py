@@ -12,15 +12,17 @@ from openchain.models.exception import BlockInvalidException
 class BlockManager(Manager):
 
     @property
-    def blockchain(self):
-        return Blockchain(self.queryset)
+    def blockchain(self) -> Blockchain:
+        blockchain = Blockchain(self.queryset)
+        blockchain.generate_tree(raise_exception=False)
+        return blockchain
 
-    def append(self, item, commit=False):
-        prev_block = self.search(item.prev_block)
-        if prev_block is not None and item.is_valid:
-            prev_block.next_block = item.data_hash
+    def append(self, block: callable, commit: bool=False):
+        prev_block = self.search(block.prev_block)
+        if prev_block is not None and block.is_valid:
+            prev_block.next_block = block.data_hash
             prev_block.save()
-            self.queryset.append(item)
+            self.queryset.append(block)
             self.save()
 
 
@@ -33,7 +35,7 @@ class Block(Model):
     transactions = []
     timestamp = None
 
-    objects = BlockManager
+    objects = BlockManager()
 
     def __init__(self, prev_block: str, next_block: str=None, data_hash: str=None,
                  transactions: list=None, timestamp: float=None):
@@ -51,7 +53,7 @@ class Block(Model):
     def data(self) -> bytes:
         data = {
             'prev': self.prev_block,
-            'transactions': self.transactions,
+            'transactions': [tx.__dict__ for tx in self.transactions],
             'timestamp': self.timestamp
         }
         ordered = collections.OrderedDict(sorted(data.items()))
@@ -64,11 +66,12 @@ class Block(Model):
          - p is the data hash, and p' is the new proof
         """
 
+        if self.timestamp is None:
+            self.timestamp = time.time()
+
         self.data_hash = sha256(sha256(self.data).digest()).digest()
         while self.valid_nonce(self.nonce) is False:
             self.nonce += 1
-        if self.timestamp is None:
-            self.timestamp = time.time()
 
     def valid_nonce(self, nonce: int) -> bool:
         """
