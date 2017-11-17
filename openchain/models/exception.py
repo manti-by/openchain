@@ -1,6 +1,14 @@
 
+class BlockchainTreeChildCollisionException(Exception):
+    """Blockchain node has two different childs"""
+
+
+class BlockchainTreeParentCollisionException(Exception):
+    """Blockchain node has two different parents"""
+
+
 class BlockInvalidException(Exception):
-    """Transaction has invalid data hash"""
+    """Block is invalid"""
 
 
 class TransactionInvalidPublicKeyException(Exception):
