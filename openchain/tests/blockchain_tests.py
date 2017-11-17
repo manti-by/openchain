@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from openchain.models.blockchain import BlockchainNode
+from openchain.models.blockchain import Blockchain, BlockchainNode
+from openchain.models.exception import BlockchainTreeChildCollisionException, BlockchainTreeParentCollisionException
 
 
 class BlockchainNodeTestCase(TestCase):
@@ -21,3 +22,33 @@ class BlockchainNodeTestCase(TestCase):
         node_01.next_item = node_02
 
         self.assertEqual(node_01.calculate_depth(), 2)
+
+
+class BlockchainTestCase(TestCase):
+
+    block_list = [
+        {'hash-01': {'prev_block': None, 'next_block': 'hash-02'}},
+        {'hash-02': {'prev_block': 'hash-01', 'next_block': 'hash-03'}},
+        {'hash-03': {'prev_block': 'hash-02', 'next_block': 'hash-04'}},
+        {'hash-04': {'prev_block': 'hash-03', 'next_block': 'hash-05'}},
+        {'hash-05': {'prev_block': 'hash-04', 'next_block': None}}
+    ]
+
+    def test_blockchain_generation(self):
+        blockchain = Blockchain(self.block_list)
+        blockchain.generate_tree()
+        self.assertEqual(len(blockchain.block_tree.keys()), 5)
+
+    def test_blockchain_raise_child_exception(self):
+        invalid_block_list = self.block_list + [{'hash-06': {'prev_block': 'hash-04', 'next_block': None}}]
+        blockchain = Blockchain(invalid_block_list)
+        with self.assertRaises(BlockchainTreeChildCollisionException):
+            blockchain.generate_tree()
+            self.assertNotEquals(len(blockchain.collisions), 0)
+
+    def test_blockchain_raise_parent_exception(self):
+        invalid_block_list = self.block_list + [{'hash-06': {'prev_block': None, 'next_block': 'hash-05'}}]
+        blockchain = Blockchain(invalid_block_list)
+        with self.assertRaises(BlockchainTreeParentCollisionException):
+            blockchain.generate_tree()
+            self.assertNotEquals(len(blockchain.collisions), 0)
