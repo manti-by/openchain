@@ -37,7 +37,7 @@ class Manager:
         self.queryset = qs
         self.save()
 
-    def search(self, index) -> object:
+    def search(self, index):
         if not self.loaded:
             self.load()
         for item in self.queryset:
