@@ -14,18 +14,38 @@ class LogEntryModelTestCase(TestCase):
         logentry.save()
 
         self.assertIsInstance(logentry, LogEntry)
+
+        LogEntry.objects.delete_all()
+
+    def test_logentry_get(self):
+        queryset = LogEntry.objects.get()
+        self.assertEqual(len(queryset), 0)
+
         LogEntry.objects.delete_all()
 
     def test_logentry_set(self):
-        logentry = LogEntry('test message 01')
-        logentry.save()
-        logentry = LogEntry('test message 02')
-        logentry.save()
-        logentry_count = len(LogEntry.objects.get())
+        logentry_01 = LogEntry('test message 01')
+        logentry_01.save()
+        logentry_02 = LogEntry('test message 02')
+        logentry_02.save()
 
-        self.assertEqual(logentry_count, 2)
+        queryset = LogEntry.objects.get()
+        self.assertEqual(len(queryset), 2)
+
         LogEntry.objects.delete_all()
 
+    def test_logentry_search(self):
+        logentry_01 = LogEntry('test message 01')
+        logentry_01.save()
+        logentry_02 = LogEntry('test message 02')
+        logentry_02.save()
+
+        queryset = LogEntry.objects.get()
+        found_entry = LogEntry.objects.search(queryset[0])
+        self.assertEqual(found_entry, logentry_01)
+
+        LogEntry.objects.delete_all()
     def test_logentry_model_factory(self):
         logentry_model_instance = ModelFactory.get_model('logentry')
+
         self.assertEqual(logentry_model_instance, LogEntry)

@@ -25,7 +25,7 @@ class BlockTestCase(TestCase):
         block.generate()
 
         self.assertTrue(block.is_valid)
-        self.assertNotEquals(block.nonce, 0)
+        self.assertNotEqual(block.nonce, 0)
 
         Block.objects.delete_all()
 
@@ -43,7 +43,10 @@ class BlockTestCase(TestCase):
         block.save()
 
         self.assertTrue(block.is_valid)
-        self.assertNotEquals(block.nonce, 0)
+        self.assertNotEqual(block.nonce, 0)
+
+        blockchain = block.objects.blockchain
+        self.assertGreater(len(blockchain.block_tree), 0)
 
         Block.objects.delete_all()
         Transaction.objects.delete_all()

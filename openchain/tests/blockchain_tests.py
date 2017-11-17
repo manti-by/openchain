@@ -39,16 +39,25 @@ class BlockchainTestCase(TestCase):
         blockchain.generate_tree()
         self.assertEqual(len(blockchain.block_tree.keys()), 5)
 
+    def test_blockchain_generation_with_disordered_transactions(self):
+        disordered_block_list = self.block_list + [
+            {'hash-06': {'prev_block': 'hash-07', 'next_block': None}},
+            {'hash-07': {'prev_block': 'hash-05', 'next_block': 'hash-06'}}
+        ]
+        blockchain = Blockchain(disordered_block_list)
+        blockchain.generate_tree()
+        self.assertEqual(len(blockchain.block_tree.keys()), 7)
+
     def test_blockchain_raise_child_exception(self):
         invalid_block_list = self.block_list + [{'hash-06': {'prev_block': 'hash-04', 'next_block': None}}]
         blockchain = Blockchain(invalid_block_list)
         with self.assertRaises(BlockchainTreeChildCollisionException):
             blockchain.generate_tree()
-            self.assertNotEquals(len(blockchain.collisions), 0)
+        self.assertFalse(blockchain.is_valid)
 
     def test_blockchain_raise_parent_exception(self):
         invalid_block_list = self.block_list + [{'hash-06': {'prev_block': None, 'next_block': 'hash-05'}}]
         blockchain = Blockchain(invalid_block_list)
         with self.assertRaises(BlockchainTreeParentCollisionException):
             blockchain.generate_tree()
-            self.assertNotEquals(len(blockchain.collisions), 0)
+        self.assertFalse(blockchain.is_valid)

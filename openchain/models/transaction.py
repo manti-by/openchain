@@ -30,6 +30,8 @@ class Transaction(Model):
         self.in_address = in_address
         self.out_address = out_address
         self.amount = amount
+        self.data_hash = sha256(sha256(self.data).digest()).digest()
+
         if public_key is not None:
             self.public_key = VerifyingKey.from_string(bytes.fromhex(public_key), curve=SECP256k1)
         if signature is not None:
@@ -64,17 +66,15 @@ class Transaction(Model):
                     return False
                 return self.public_key.verify(self.signature, hashed_raw_transaction)
             except BadSignatureError:
-                return False
+                pass
         return False
 
     @property
     def __dict__(self) -> dict:
-        if not self.is_valid:
-            raise TransactionInvalidSignatureException
         return {
             'in_address': self.in_address,
             'out_address': self.out_address,
             'amount': self.amount,
-            'public_key': self.public_key.to_string().hex(),
+            'public_key': self.public_key.to_string().hex() if self.public_key else None,
             'signature': self.signature.hex()
         }

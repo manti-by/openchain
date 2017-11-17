@@ -3,6 +3,7 @@ from ecdsa import SigningKey, VerifyingKey
 
 from openchain.models.wallet import Wallet
 from openchain.models.transaction import Transaction
+from openchain.tests import TEST_PRIVATE_KEY_HEX, TEST_PUBLIC_KEY_HEX
 
 
 class WalletTestCase(TestCase):
@@ -12,6 +13,16 @@ class WalletTestCase(TestCase):
 
     def test_wallet_creation(self):
         wallet = Wallet()
+        wallet.save()
+
+        self.assertIsInstance(wallet.private_key, SigningKey)
+        self.assertIsInstance(wallet.public_key, VerifyingKey)
+
+        Wallet.objects.delete_all()
+
+    def test_existing_wallet_creation(self):
+        wallet = Wallet(private_key=TEST_PRIVATE_KEY_HEX,
+                        public_key=TEST_PUBLIC_KEY_HEX)
         wallet.save()
 
         self.assertIsInstance(wallet.private_key, SigningKey)
