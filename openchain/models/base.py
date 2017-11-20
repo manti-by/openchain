@@ -7,13 +7,11 @@ from openchain.models.factory import ModelFactory
 
 class Manager:
 
-    namespace = None
     db_adapter = PlyvelAdapter()
 
-    queryset = None
-    loaded = False
-
     def __init__(self):
+        self.loaded = False
+        self.queryset = None
         self.namespace = self.__class__.__name__.lower()
         if self.namespace != 'manager':
             self.namespace = self.namespace.replace('manager', '')
@@ -37,11 +35,11 @@ class Manager:
         self.queryset = qs
         self.save()
 
-    def search(self, index):
+    def search(self, search_item):
         if not self.loaded:
             self.load()
         for item in self.queryset:
-            if next(iter(item)) == index:
+            if search_item == item:
                 return item
 
     def append(self, item: object, commit: bool=False):
@@ -54,7 +52,8 @@ class Manager:
     def delete(self, item: object):
         if item in self.queryset:
             self.queryset.remove(item)
-            self.db_adapter.delete(self.namespace, next(iter(item.__dict__)).encode())
+            index = next(iter(item.__dict__)).encode()
+            self.db_adapter.delete(self.namespace, index)
 
     def delete_all(self):
         if not self.loaded:
@@ -67,13 +66,11 @@ class Manager:
 
     @property
     def compact_list(self):
-        compact_list = []
         if self.queryset:
             for item in self.queryset:
                 index = xxhash.xxh64()
                 index.update(item.__bytes__)
-                compact_list.append({index.digest(): item.__bytes__})
-        return compact_list
+                yield {index.digest(): item.__bytes__}
 
 
 class Model:

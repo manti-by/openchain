@@ -2,9 +2,8 @@ from unittest import TestCase
 
 from openchain.models.factory import ModelFactory
 from openchain.models.transaction import Transaction
-from openchain.models.exception import TransactionInvalidPublicKeyException, TransactionInvalidSignatureException
-from openchain.tests import TEST_PRIVATE_KEY, TEST_ANOTHER_PUBLIC_KEY, UNKNOWN_VALID_SIGNATURE_BYTES, \
-    UNKNOWN_VALID_SIGNATURE_HEX
+from openchain.models.exception import TransactionInvalidPublicKeyException
+from openchain.tests import TEST_PRIVATE_KEY, TEST_ANOTHER_PUBLIC_KEY, UNKNOWN_VALID_SIGNATURE_BYTES
 
 
 class TransactionModelTestCase(TestCase):
@@ -33,6 +32,15 @@ class TransactionModelTestCase(TestCase):
         self.assertEqual(transaction_count, 2)
         Transaction.objects.delete_all()
 
+    def test_transaction_update_hash(self):
+        transaction = Transaction(in_address='addr1', out_address='addr2', amount=10.50)
+        transaction.signing(TEST_PRIVATE_KEY.to_string().hex())
+        transaction.save()
+
+        transaction.data_hash = None
+        self.assertFalse(transaction.is_valid)
+        Transaction.objects.delete_all()
+
     def test_transaction_model_factory(self):
         transaction_model_instance = ModelFactory.get_model('transaction')
         self.assertEqual(transaction_model_instance, Transaction)
@@ -56,13 +64,6 @@ class TransactionSigningTestCase(TestCase):
 
         with self.assertRaises(TransactionInvalidPublicKeyException):
             transaction.signing(TEST_PRIVATE_KEY.to_string().hex())
-
-    def test_transaction_signature_exception(self):
-        transaction = Transaction(in_address='addr1', out_address='addr2', amount=10.50,
-                                  signature=UNKNOWN_VALID_SIGNATURE_HEX)
-
-        with self.assertRaises(TransactionInvalidSignatureException):
-            self.assertIsInstance(transaction.__dict__, dict)
 
     def test_transaction_signature_substitution(self):
         transaction = Transaction(in_address='addr1', out_address='addr2', amount=10.50)

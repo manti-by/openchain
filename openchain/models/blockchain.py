@@ -29,12 +29,10 @@ class Blockchain:
 
     def generate_tree(self, raise_exception: bool=True):
         for block in self.block_list:
-            block_hash = next(iter(block))
-            block_data = next(iter(block.values()))
             curr_block_node = BlockchainNode(block)
 
-            if block_data['prev_block'] in self.block_tree.keys():
-                prev_block_node = self.block_tree[block_data['prev_block']]
+            if block.prev_block in self.block_tree.keys():
+                prev_block_node = self.block_tree[block.prev_block]
                 if prev_block_node.next_item:
                     self.collisions.extend([block, prev_block_node.block])
                     if raise_exception:
@@ -43,8 +41,8 @@ class Blockchain:
                 prev_block_node.next_item = curr_block_node
                 curr_block_node.prev_item = prev_block_node
 
-            if block_data['next_block'] in self.block_tree.keys():
-                next_block_node = self.block_tree[block_data['next_block']]
+            if block.next_block in self.block_tree.keys():
+                next_block_node = self.block_tree[block.next_block]
                 if next_block_node.prev_item:
                     self.collisions.extend([block, next_block_node.block])
                     if raise_exception:
@@ -53,7 +51,7 @@ class Blockchain:
                 next_block_node.prev_item = curr_block_node
                 curr_block_node.next_item = next_block_node
 
-            self.block_tree[block_hash] = curr_block_node
+            self.block_tree[block.data_hash] = curr_block_node
 
         for key, node in self.block_tree.items():
             node.depth = node.calculate_depth()
