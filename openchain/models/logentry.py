@@ -1,3 +1,4 @@
+import collections
 import time
 
 from openchain.models.base import Model, Manager
@@ -21,7 +22,8 @@ class LogEntry(Model):
 
     @property
     def __dict__(self):
-        return {
+        unordered = {
             'message': self.message,
             'timestamp': self.timestamp
         }
+        return collections.OrderedDict(sorted(unordered.items()))

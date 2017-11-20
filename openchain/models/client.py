@@ -1,3 +1,4 @@
+import collections
 import time
 
 from openchain.models.base import Model, Manager
@@ -30,7 +31,8 @@ class Client(Model):
 
     @property
     def __dict__(self):
-        return {
+        unordered = {
             'client_id': self.client_id,
             'timestamp': self.timestamp
         }
+        return collections.OrderedDict(sorted(unordered.items()))

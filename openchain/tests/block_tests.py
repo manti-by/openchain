@@ -38,7 +38,7 @@ class BlockTestCase(TestCase):
         transaction_02.signing(TEST_PRIVATE_KEY.to_string().hex())
         transaction_02.save()
 
-        block = Block('Genesis block', transactions=[transaction_01, transaction_02])
+        block = Block('Genesis block', transactions=[transaction_01.__dict__, transaction_02.__dict__])
         block.generate()
         block.save()
 

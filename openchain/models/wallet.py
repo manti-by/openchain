@@ -1,3 +1,4 @@
+import collections
 import hashlib
 
 from ecdsa import VerifyingKey, SigningKey, SECP256k1
@@ -31,10 +32,11 @@ class Wallet(Model):
 
     @property
     def __dict__(self) -> dict:
-        return {
+        unordered = {
             'private_key': self.private_key.to_string().hex(),
             'public_key': self.public_key.to_string().hex()
         }
+        return collections.OrderedDict(sorted(unordered.items()))
 
     @property
     def private_key_hex(self) -> str:

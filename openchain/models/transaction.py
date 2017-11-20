@@ -47,6 +47,17 @@ class Transaction(Model):
         ordered = collections.OrderedDict(sorted(data.items()))
         return json.dumps(ordered).encode()
 
+    @property
+    def __dict__(self) -> dict:
+        unordered = {
+            'in_address': self.in_address,
+            'out_address': self.out_address,
+            'amount': self.amount,
+            'public_key': self.public_key.to_string().hex() if self.public_key else None,
+            'signature': self.signature.hex()
+        }
+        return collections.OrderedDict(sorted(unordered.items()))
+
     def signing(self, private_key: str):
         self.data_hash = sha256(sha256(self.data).digest()).digest()
         signing_key = SigningKey.from_string(bytes.fromhex(private_key), curve=SECP256k1)
@@ -68,13 +79,3 @@ class Transaction(Model):
             except BadSignatureError:
                 pass
         return False
-
-    @property
-    def __dict__(self) -> dict:
-        return {
-            'in_address': self.in_address,
-            'out_address': self.out_address,
-            'amount': self.amount,
-            'public_key': self.public_key.to_string().hex() if self.public_key else None,
-            'signature': self.signature.hex()
-        }

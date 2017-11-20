@@ -7,6 +7,7 @@ from hashlib import sha256
 from openchain.models.base import Model, Manager
 from openchain.models.blockchain import Blockchain
 from openchain.models.exception import BlockInvalidException
+from openchain.models.factory import ModelFactory
 
 
 class BlockManager(Manager):
@@ -19,9 +20,10 @@ class BlockManager(Manager):
 
     def append(self, block: callable, commit: bool=False):
         prev_block = self.search(block.prev_block)
-        if prev_block is not None and block.is_valid:
-            prev_block.next_block = block.data_hash
-            prev_block.save()
+        if (prev_block is not None or block.is_genesis) and block.is_valid:
+            if not block.is_genesis:
+                prev_block.next_block = block.data_hash
+                prev_block.save()
             self.queryset.append(block)
             self.save()
 
@@ -38,16 +40,24 @@ class Block(Model):
     objects = BlockManager()
 
     def __init__(self, prev_block: str, next_block: str=None, data_hash: str=None,
-                 transactions: list=None, timestamp: float=None):
+                 nonce: int=0, transactions: list=None, timestamp: float=None):
         self.prev_block = prev_block
         if next_block is not None:
             self.next_block = next_block
         if data_hash is not None:
             self.data_hash = data_hash
+        if nonce is not None:
+            self.nonce = nonce
         if transactions is not None:
-            self.transactions = transactions
+            self.transactions = []
+            for transaction in transactions:
+                self.transactions.append(ModelFactory.get_model('transaction')(**transaction))
         if timestamp is not None:
             self.timestamp = timestamp
+
+    @property
+    def is_genesis(self):
+        return self.prev_block == 'Genesis block'
 
     @property
     def data(self) -> bytes:
@@ -59,6 +69,20 @@ class Block(Model):
         ordered = collections.OrderedDict(sorted(data.items()))
         return json.dumps(ordered).encode()
 
+    @property
+    def __dict__(self):
+        if not self.is_valid:
+            raise BlockInvalidException
+        unordered = {
+            'prev_block': self.prev_block,
+            'next_block': self.next_block,
+            'data_hash': self.data_hash,
+            'nonce': self.nonce,
+            'transactions': [tx.__dict__ for tx in self.transactions],
+            'timestamp': self.timestamp
+        }
+        return collections.OrderedDict(sorted(unordered.items()))
+
     def generate(self):
         """
         Simple Proof of Work Algorithm:
@@ -69,7 +93,7 @@ class Block(Model):
         if self.timestamp is None:
             self.timestamp = time.time()
 
-        self.data_hash = sha256(sha256(self.data).digest()).digest()
+        self.data_hash = sha256(sha256(self.data).digest()).digest().hex()
         while self.valid_nonce(self.nonce) is False:
             self.nonce += 1
 
@@ -86,20 +110,7 @@ class Block(Model):
 
     @property
     def is_valid(self) -> bool:
-        hashed_raw_block = sha256(sha256(self.data).digest()).digest()
+        hashed_raw_block = sha256(sha256(self.data).digest()).digest().hex()
         if self.data_hash != hashed_raw_block:
             return False
         return self.valid_nonce(self.nonce)
-
-    @property
-    def __dict__(self):
-        if not self.is_valid:
-            raise BlockInvalidException
-        return {
-            'prev_block': self.prev_block,
-            'next_block': self.next_block,
-            'data_hash': self.data_hash,
-            'nonce': self.nonce,
-            'transactions': self.transactions,
-            'timestamp': self.timestamp
-        }
