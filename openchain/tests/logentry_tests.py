@@ -45,6 +45,7 @@ class LogEntryModelTestCase(TestCase):
         self.assertEqual(found_entry, logentry_01)
 
         LogEntry.objects.delete_all()
+
     def test_logentry_model_factory(self):
         logentry_model_instance = ModelFactory.get_model('logentry')
 

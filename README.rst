@@ -6,7 +6,7 @@ About
 
 Library for creating blockchain networks.
 
-**WARNING:** Currently library in **Alpha** development status.
+**WARNING:** Currently library in **Beta** development status.
 It's a concept of vision, not working library yet.
 
 Author: Alexander Chaika <manti.by@gmail.com>
@@ -22,11 +22,15 @@ Requirements:
 Installation
 ------------
 
-From `PyPi <https://pypi.python.org/pypi/openchain>`_
+Install system libraries
+
+    $ sudo apt install python3-dev libleveldb-dev
+
+Install package from `PyPi <https://pypi.python.org/pypi/openchain>`_
 
     $ pip install openchain
 
-From `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
+Alternatively clone from `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
 
     $ git clone git@bitbucket.org:manti_by/openchain.git
 

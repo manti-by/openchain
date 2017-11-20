@@ -32,7 +32,7 @@ setup(
     install_requires=requirements,
     test_suite='tests',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: BSD License',

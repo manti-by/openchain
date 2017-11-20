@@ -2,9 +2,8 @@ from unittest import TestCase
 
 from openchain.models.factory import ModelFactory
 from openchain.models.transaction import Transaction
-from openchain.models.exception import TransactionInvalidPublicKeyException, TransactionInvalidSignatureException
-from openchain.tests import TEST_PRIVATE_KEY, TEST_ANOTHER_PUBLIC_KEY, UNKNOWN_VALID_SIGNATURE_BYTES, \
-    UNKNOWN_VALID_SIGNATURE_HEX
+from openchain.models.exception import TransactionInvalidPublicKeyException
+from openchain.tests import TEST_PRIVATE_KEY, TEST_ANOTHER_PUBLIC_KEY, UNKNOWN_VALID_SIGNATURE_BYTES
 
 
 class TransactionModelTestCase(TestCase):

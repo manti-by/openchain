@@ -6,7 +6,7 @@ from ecdsa import SigningKey, VerifyingKey, SECP256k1
 from ecdsa.keys import BadSignatureError
 
 from openchain.models.base import Model, Manager
-from openchain.models.exception import TransactionInvalidPublicKeyException, TransactionInvalidSignatureException
+from openchain.models.exception import TransactionInvalidPublicKeyException
 
 
 class TransactionManager(Manager):

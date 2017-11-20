@@ -18,6 +18,13 @@ class BlockManager(Manager):
         blockchain.generate_tree(raise_exception=False)
         return blockchain
 
+    def search(self, search_hash):
+        if not self.loaded:
+            self.load()
+        for item in self.queryset:
+            if search_hash == item.data_hash:
+                return item
+
     def append(self, block: callable, commit: bool=False):
         prev_block = self.search(block.prev_block)
         if (prev_block is not None or block.is_genesis) and block.is_valid:
@@ -57,7 +64,7 @@ class Block(Model):
 
     @property
     def is_genesis(self):
-        return self.prev_block == 'Genesis block'
+        return self.prev_block == ''
 
     @property
     def data(self) -> bytes:
