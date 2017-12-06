@@ -6,8 +6,7 @@ About
 
 Library for creating blockchain networks.
 
-**WARNING:** Currently library in **Beta** development status.
-It's a concept of vision, not working library yet.
+**WARNING:** Currently library in **Beta** development status, use at your own risk.
 
 Author: Alexander Chaika <manti.by@gmail.com>
 
@@ -61,8 +60,8 @@ Run unit tests and coverage
 
     $ export DATABASE_PATH='/var/tmp/leveldb/test/'
 
-    $ python -m unittest discover -s openchain/tests/ -p '*_tests.py'
+    $ python -m unittest discover -s openchain/tests/ -p ``'*_tests.py'``
 
-    $ coverage run -m unittest discover -s openchain/tests/ -p '*_tests.py'
+    $ coverage run -m unittest discover -s openchain/tests/ -p ``'*_tests.py'``
 
     $ coverage report -m

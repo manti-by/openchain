@@ -1,0 +1,4 @@
+-r requirements.txt
+
+ipython>=6.2,<6.3
+docutils>=0.14,<0.15

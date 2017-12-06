@@ -3,16 +3,11 @@
 *.pyc
 *~
 
-examples/db/
-examples/deploy/.vagrant/
-
-examples/logs/
-examples/*.log
-
 *.egg-info/
 
 /build/
 /dist/
 
+.coverage
 flake8-report
-coverage-report
+README.html
