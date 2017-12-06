@@ -6,6 +6,17 @@ About
 
 Library for creating blockchain networks.
 
+
+.. image:: https://circleci.com/bb/manti_by/openchain/tree/master.svg?style=shield&circle-token=7f803605b49718f938b3c300f707ba4fc188cb1e
+    :target: https://circleci.com/bb/manti_by/openchain/tree/master
+
+.. image:: https://codecov.io/bb/manti_by/openchain/branch/master/graph/badge.svg
+  :target: https://codecov.io/bb/manti_by/openchain
+
+.. image:: https://img.shields.io/badge/license-BSD-blue.svg
+    :target: https://bitbucket.org/manti_by/openchain/raw/a482d552071732134966ae28262d1eef5a19b19d/LICENSE.txt
+
+
 **WARNING:** Currently library in **Beta** development status, use at your own risk.
 
 Author: Alexander Chaika <manti.by@gmail.com>
