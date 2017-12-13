@@ -29,7 +29,7 @@ class PoolListener(tornado.web.RequestHandler):
         logger.debug('[POOL] Processing post request')
 
         try:
-            client_id = self.request.headers.get('X-Client-STUN-Address', self.request.remote_ip)
+            client_id = self.request.headers.get('X-Client-Address', self.request.remote_ip)
             client = Client(client_id)
             client.save()
             result = {'status': 200, 'message': 'OK'}

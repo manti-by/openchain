@@ -1,48 +1,66 @@
-import time
+import json
 import logging
+import requests
 
-from pyp2p.net import Net
-from pyp2p.dht_msg import DHT
+import tornado.ioloop
+import tornado.web
 
+from examples.common.conf import settings
+from examples.common.utils import init_logger
+from examples.listener.miner import MinerListener
 
-from .common.conf import settings
-from .common.utils import init_logger, string_to_bytes, get_address
+from openchain.models.block import Block
+from openchain.models.transaction import Transaction
 
 logger = logging.getLogger()
 
 
-def success(connection):
-    logger.debug('Successfully connected to pool server')
+def generate_blockchain():
+    transaction_list = []
+    for transaction in Transaction.objects.get():
+        transaction_list.append(transaction.__dict__)
 
-    request = string_to_bytes('X-Client-STUN-Address: {}:{}'.format(ip, port))
-    connection.send_line(request)
+    block = Block(Block.objects.blockchain.last_block_hash, transactions=transaction_list)
+    block.generate()
+    block.save()
 
-
-def failure(connection):
-    logger.debug('Cant connect to pool server, shutdown')
+    Transaction.objects.delete_all()
 
 
 if __name__ == "__main__":
-    logger.debug('Starting miner application')
-
     init_logger(settings)
-    ip, port, interface = get_address()
+    logger.debug('[MINER] Starting wallet application')
 
-    client_dht = DHT()
-    client_node = Net(dht_node=client_dht, passive_bind=ip, passive_port=port,
-                      interface=interface, net_type='direct', debug=1)
-    client_node.start()
+    blockchain = Block.objects.blockchain
+    if blockchain is not None:
+        logger.debug('[MINER] Blockchain loaded')
+    else:
+        # TODO: Add genesis block
+        pass
 
-    logger.debug('Connecting to pool server')
+    logger.debug('[MINER] Announcing address to pool server')
 
-    client_node.unl.connect((settings['pool_server']['ip'], settings['pool_server']['port']), {
-        'success': success,
-        'failure': failure
-    })
+    headers = {'X-Client-Address': 'http://{}:{}'.format(settings['miner_server']['ip'],
+                                                         settings['miner_server']['port'])}
+    r = requests.post('http://{}:{}'.format(settings['pool_server']['ip'],
+                                            settings['pool_server']['port']), headers=headers)
 
-    # Start IO loop
-    while True:
-        for con in client_node:
-            for reply in con:
-                print(reply)
-        time.sleep(1)
+    result = json.loads(r.json())
+    if result['status'] != 200:
+        logger.debug('[MINER] Cant connect to pool server, shutdown the application')
+        exit(0)
+
+    app = tornado.web.Application([
+        (r"/", MinerListener),
+    ])
+    app.listen(settings['miner_server']['port'], address=settings['miner_server']['ip'])
+
+    main_loop = tornado.ioloop.IOLoop.instance()
+    scheduled_loop = tornado.ioloop.PeriodicCallback(generate_blockchain, 60000, io_loop=main_loop)
+
+    logger.debug('[MINER] Start blockchain generation')
+    scheduled_loop.start()
+
+    logger.debug('[MINER] Listening for connections on {}:{}'.format(settings['miner_server']['ip'],
+                                                                     settings['miner_server']['port']))
+    main_loop.start()

@@ -23,7 +23,7 @@ def generate_and_send_transaction(wallet, miner_list):
             r = requests.post(miner['client_id'], transaction.__dict__)
             result = json.loads(r.json)
             if result['status'] == 200:
-                logger.debug('[WALLET] Successfully send transaction')
+                logger.debug('[WALLET] Successfully send transaction to {}'.format(miner['client_id']))
             else:
                 logger.debug('[WALLET] Error sending transaction: {}'.format(result['message']))
 
@@ -44,15 +44,17 @@ if __name__ == "__main__":
     logger.debug('[WALLET] Connecting to pool server')
     r = requests.get('http://{}:{}'.format(settings['pool_server']['ip'],
                                            settings['pool_server']['port']))
-    miner_list = json.loads(r.json())
-    if not miner_list:
-        logger.debug('[WALLET] There are no available miner server found, shutdown application')
+    result = json.loads(r.json())
+    if result['status'] != 200:
+        logger.debug('[WALLET] Cant connect to pool server, shutdown the application')
+    elif not result['data']:
+        logger.debug('[WALLET] There are no available miner servers found, shutdown the application')
         exit(0)
 
-    logger.debug('[WALLET] Start transaction generation')
-
     main_loop = tornado.ioloop.IOLoop.instance()
-    scheduled_loop = tornado.ioloop.PeriodicCallback(lambda: generate_and_send_transaction(wallet, miner_list),
-                                                     9000, io_loop=main_loop)
+    scheduled_loop = tornado.ioloop.PeriodicCallback(lambda: generate_and_send_transaction(wallet, result['data']),
+                                                     7000, io_loop=main_loop)
+
+    logger.debug('[WALLET] Start transaction generation')
     scheduled_loop.start()
     main_loop.start()
