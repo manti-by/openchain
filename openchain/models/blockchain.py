@@ -47,8 +47,11 @@ class Blockchain:
 
     @property
     def last_block_hash(self):
-        block_hash = next(iter(self.block_tree))
-        return self.get_latest_block_hash(block_hash)
+        try:
+            block_hash = next(iter(self.block_tree))
+            return self.get_latest_block_hash(block_hash)
+        except StopIteration:
+            return ''
 
     def get_latest_block_hash(self, hash):
         if self.block_tree[hash].next_item is None:

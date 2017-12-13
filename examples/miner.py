@@ -5,6 +5,8 @@ import requests
 import tornado.ioloop
 import tornado.web
 
+from requests.exceptions import ConnectionError
+
 from examples.common.conf import settings
 from examples.common.utils import init_logger
 from examples.listener.miner import MinerListener
@@ -32,23 +34,26 @@ if __name__ == "__main__":
     logger.debug('[MINER] Starting wallet application')
 
     blockchain = Block.objects.blockchain
-    if blockchain is not None:
-        logger.debug('[MINER] Blockchain loaded')
-    else:
-        # TODO: Add genesis block
-        pass
+    logger.debug('[MINER] Blockchain loaded with {} blocks'.format(len(blockchain.block_list)))
 
     logger.debug('[MINER] Announcing address to pool server')
-
     headers = {'X-Client-Address': 'http://{}:{}'.format(settings['miner_server']['ip'],
                                                          settings['miner_server']['port'])}
-    r = requests.post('http://{}:{}'.format(settings['pool_server']['ip'],
-                                            settings['pool_server']['port']), headers=headers)
+    shutdown = False
+    try:
+        r = requests.post('http://{}:{}'.format(settings['pool_server']['ip'],
+                                                settings['pool_server']['port']), headers=headers)
+        result = json.loads(r.json())
+        if result['status'] != 200:
+            logger.error('[MINER] Pool server encountered error {}'.format(result['message']))
+            shutdown = True
+    except ConnectionError:
+        logger.error('[MINER] Pool server is currently unavailable')
+        shutdown = True
 
-    result = json.loads(r.json())
-    if result['status'] != 200:
-        logger.debug('[MINER] Cant connect to pool server, shutdown the application')
-        exit(0)
+    if shutdown:
+        logger.debug('[MINER] Shutdown the application')
+        exit(-1)
 
     app = tornado.web.Application([
         (r"/", MinerListener),

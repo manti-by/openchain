@@ -6,6 +6,8 @@ import requests
 import tornado.ioloop
 import tornado.web
 
+from requests.exceptions import ConnectionError
+
 from examples.common.conf import settings
 from examples.common.utils import init_logger
 
@@ -42,14 +44,25 @@ if __name__ == "__main__":
         wallet = wallet_list[0]
 
     logger.debug('[WALLET] Connecting to pool server')
-    r = requests.get('http://{}:{}'.format(settings['pool_server']['ip'],
-                                           settings['pool_server']['port']))
-    result = json.loads(r.json())
-    if result['status'] != 200:
-        logger.debug('[WALLET] Cant connect to pool server, shutdown the application')
-    elif not result['data']:
-        logger.debug('[WALLET] There are no available miner servers found, shutdown the application')
-        exit(0)
+    shutdown = False
+    try:
+        r = requests.get('http://{}:{}'.format(settings['pool_server']['ip'],
+                                               settings['pool_server']['port']))
+        result = json.loads(r.json())
+
+        if result['status'] != 200:
+            logger.error('[WALLET] Pool server encountered error {}'.format(result['message']))
+            shutdown = True
+        elif not result['data']:
+            logger.error('[WALLET] There are no available miner servers found')
+            shutdown = True
+    except ConnectionError:
+        logger.error('[WALLET] Pool server is currently unavailable')
+        shutdown = True
+
+    if shutdown:
+        logger.debug('[WALLET] Shutdown the application')
+        exit(-1)
 
     main_loop = tornado.ioloop.IOLoop.instance()
     scheduled_loop = tornado.ioloop.PeriodicCallback(lambda: generate_and_send_transaction(wallet, result['data']),
