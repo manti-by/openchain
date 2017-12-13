@@ -74,3 +74,8 @@ class BlockchainTestCase(TestCase):
         with self.assertRaises(BlockchainTreeParentCollisionException):
             blockchain.generate_tree()
         self.assertFalse(blockchain.is_valid)
+
+    def test_blockchain_last_block_hash(self):
+        blockchain = Blockchain(self.block_list)
+        blockchain.generate_tree()
+        self.assertEqual(blockchain.last_block_hash, 'hash-05')

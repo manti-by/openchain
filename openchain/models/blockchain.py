@@ -1,3 +1,5 @@
+import collections
+
 from openchain.models.exception import BlockchainTreeChildCollisionException, BlockchainTreeParentCollisionException
 
 
@@ -9,6 +11,15 @@ class BlockchainNode:
         self.block = block
         self.prev_item = prev_item
         self.next_item = next_item
+
+    @property
+    def __dict__(self):
+        unordered = {
+            'block': self.block.__dict__,
+            'prev_item': self.prev_item.__dict__,
+            'next_item': self.next_item.__dict__,
+        }
+        return collections.OrderedDict(sorted(unordered.items()))
 
     def calculate_depth(self) -> int:
         if not self.next_item:
@@ -26,6 +37,25 @@ class Blockchain:
     @property
     def is_valid(self) -> bool:
         return len(self.collisions) == 0
+
+    @property
+    def __dict__(self):
+        result = {}
+        for block_hash, block in self.block_tree:
+            result[block_hash] = block.__dict__
+        return result
+
+    @property
+    def last_block_hash(self):
+        block_hash = next(iter(self.block_tree))
+        return self.get_latest_block_hash(block_hash)
+
+    def get_latest_block_hash(self, hash):
+        if self.block_tree[hash].next_item is None:
+            return hash
+        else:
+            next_hash = self.block_tree[hash].next_item.data_hash
+            return self.get_latest_block_hash(next_hash)
 
     def generate_tree(self, raise_exception: bool=True):
         for block in self.block_list:
