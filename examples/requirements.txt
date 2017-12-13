@@ -1,8 +1,3 @@
 tornado>=4.5,<4.6
 leveldb>=0.20,<0.21
 -e git+https://bitbucket.org/manti_by/openchain@develop#egg=openchain
-
-pyp2p>=0.8,<0.9
-psutil>=5.4,<5.5
-future>=0.16,<0.17
-umsgpack>=0.1,<0.2

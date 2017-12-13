@@ -1,48 +1,58 @@
-import time
+import json
 import logging
+import random
+import requests
 
-from pyp2p.net import Net
-from pyp2p.dht_msg import DHT
+import tornado.ioloop
+import tornado.web
 
+from examples.common.conf import settings
+from examples.common.utils import init_logger
 
-from .common.conf import settings
-from .common.utils import init_logger, string_to_bytes, get_address
+from openchain.models.wallet import Wallet
+from openchain.models.transaction import Transaction
 
 logger = logging.getLogger()
 
 
-def success(connection):
-    logger.debug('Successfully connected to pool server')
-
-    request = string_to_bytes('X-Client-STUN-Address: {}:{}'.format(ip, port))
-    connection.send_line(request)
-
-
-def failure(connection):
-    logger.debug('Cant connect to pool server, shutdown')
+def generate_and_send_transaction(wallet, miner_list):
+    transaction = Transaction(in_address=wallet.address, out_address='', amount=random.randint(0, 50))
+    transaction.signing(wallet.private_key_hex)
+    if transaction.is_valid:
+        for miner in miner_list:
+            r = requests.post(miner['client_id'], transaction.__dict__)
+            result = json.loads(r.json)
+            if result['status'] == 200:
+                logger.debug('[WALLET] Successfully send transaction')
+            else:
+                logger.debug('[WALLET] Error sending transaction: {}'.format(result['message']))
 
 
 if __name__ == "__main__":
     init_logger(settings)
-    logger.debug('Starting wallet application')
+    logger.debug('[WALLET] Starting wallet application')
 
-    ip, port, interface = get_address()
+    wallet_list = Wallet.objects.get()
+    if not len(wallet_list):
+        logger.debug('[WALLET] Creating new wallet')
+        wallet = Wallet()
+        wallet.save()
+    else:
+        logger.debug('[WALLET] Using existing wallet')
+        wallet = wallet_list[0]
 
-    client_dht = DHT()
-    client_node = Net(dht_node=client_dht, passive_bind=ip, passive_port=port,
-                      interface=interface, net_type='direct', debug=1)
-    client_node.start()
+    logger.debug('[WALLET] Connecting to pool server')
+    r = requests.get('http://{}:{}'.format(settings['pool_server']['ip'],
+                                           settings['pool_server']['port']))
+    miner_list = json.loads(r.json())
+    if not miner_list:
+        logger.debug('[WALLET] There are no available miner server found, shutdown application')
+        exit(0)
 
-    logger.debug('Connecting to pool server')
+    logger.debug('[WALLET] Start transaction generation')
 
-    client_node.unl.connect((settings['pool_server']['ip'], settings['pool_server']['port']), {
-        'success': success,
-        'failure': failure
-    })
-
-    # Start IO loop
-    while True:
-        for con in client_node:
-            for reply in con:
-                print(reply)
-        time.sleep(1)
+    main_loop = tornado.ioloop.IOLoop.instance()
+    scheduled_loop = tornado.ioloop.PeriodicCallback(lambda: generate_and_send_transaction(wallet, miner_list),
+                                                     9000, io_loop=main_loop)
+    scheduled_loop.start()
+    main_loop.start()
