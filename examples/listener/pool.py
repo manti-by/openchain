@@ -1,3 +1,4 @@
+import json
 import logging
 import tornado.web
 
@@ -12,14 +13,30 @@ class PoolListener(tornado.web.RequestHandler):
         logger.debug('[POOL] Processing get request')
 
         try:
+            result = {
+                'status': 200,
+                'data': Client.objects.dict_list
+            }
+        except Exception as e:
+            logger.error('[POOL] {}'.format(e))
+            result = {'status': 500, 'message': e}
+
+        self.set_header('Content-Type', 'application/json')
+        self.write(json.dumps(result).encode())
+        self.finish()
+
+    def post(self):
+        logger.debug('[POOL] Processing post request')
+
+        try:
             client_id = self.request.headers.get('X-Client-STUN-Address', self.request.remote_ip)
             client = Client(client_id)
             client.save()
-            data = client.objects.get()
+            result = {'status': 200, 'message': 'OK'}
         except Exception as e:
             logger.error('[POOL] {}'.format(e))
-            data = e
+            result = {'status': 500, 'message': e}
 
         self.set_header('Content-Type', 'application/json')
-        self.write(data.__bytes__())
+        self.write(json.dumps(result).encode())
         self.finish()

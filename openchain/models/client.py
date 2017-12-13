@@ -9,7 +9,7 @@ class ClientManager(Manager):
     def append(self, item: object, commit: bool=False):
         updated = False
         for c in self.get():
-            if item == c:
+            if item.client_id == c.client_id:
                 updated = True
                 item.timestamp = time.time()
         if not updated:
