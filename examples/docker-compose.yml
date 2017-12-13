@@ -1,64 +1,40 @@
-version: "3"
+version: '3'
 services:
   pool:
     image: mantiby/openchain:latest
-    deploy:
-      mode: replicated
-      replicas: 1
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
-      restart_policy:
-        condition: on-failure
+    container_name: openchain-pool
     networks:
-      - webnet
+      openchain:
+        ipv4_address: 10.5.0.2
     environment:
-    - ROLE=pool
+      - ROLE=pool
   logger:
     image: mantiby/openchain:latest
-    deploy:
-      mode: replicated
-      replicas: 1
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
-      restart_policy:
-        condition: on-failure
+    container_name: openchain-logger
     networks:
-      - webnet
+      openchain:
+        ipv4_address: 10.5.0.3
     environment:
-    - ROLE=logger
+      - ROLE=logger
   miner:
     image: mantiby/openchain:latest
-    deploy:
-      mode: replicated
-      replicas: 3
-      resources:
-        limits:
-          cpus: "1"
-          memory: 512M
-      restart_policy:
-        condition: on-failure
+    container_name: openchain-miner
     networks:
-      - webnet
+      openchain:
+        ipv4_address: 10.5.0.4
     environment:
-    - ROLE=miner
+      - ROLE=miner
   wallet:
     image: mantiby/openchain:latest
-    deploy:
-      mode: replicated
-      replicas: 5
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 128M
-      restart_policy:
-        condition: on-failure
+    container_name: openchain-wallet
     networks:
-      - webnet
+      openchain:
+        ipv4_address: 10.5.0.5
     environment:
-    - ROLE=wallet
+      - ROLE=wallet
 networks:
-  webnet:
+  openchain:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
