@@ -9,6 +9,3 @@
 /dist/
 
 .coverage
-coverage.xml
-flake8-report
-README.html
