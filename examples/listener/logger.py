@@ -15,7 +15,7 @@ class LoggerListener(tornado.web.RequestHandler):
         try:
             result = {
                 'status': 200,
-                'data': LogEntry.objects.get()
+                'data': LogEntry.objects.dict_list
             }
         except Exception as e:
             logger.error('[LOGGER] {}'.format(e))
@@ -31,7 +31,7 @@ class LoggerListener(tornado.web.RequestHandler):
         try:
             result = {'status': 204, 'message': 'No Content'}
             if self.request.body:
-                log_entry = LogEntry(self.request.body)
+                log_entry = LogEntry(str(self.request.body.decode('utf-8')))
                 log_entry.save()
                 result = {'status': 200, 'message': 'OK'}
         except Exception as e:

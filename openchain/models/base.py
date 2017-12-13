@@ -11,7 +11,7 @@ class Manager:
 
     def __init__(self):
         self.loaded = False
-        self.queryset = None
+        self.queryset = []
         self.namespace = self.__class__.__name__.lower()
         if self.namespace != 'manager':
             self.namespace = self.namespace.replace('manager', '')
@@ -58,20 +58,28 @@ class Manager:
     def delete_all(self):
         if not self.loaded:
             self.load()
-        self.db_adapter.batch_delete(self.namespace, self.compact_list)
+        self.db_adapter.batch_delete(self.namespace, self.hashed_list)
         self.queryset = []
 
     def save(self):
-        self.db_adapter.batch_put(self.namespace, self.compact_list)
+        self.db_adapter.batch_put(self.namespace, self.hashed_list)
 
     @property
-    def compact_list(self):
+    def hashed_list(self):
+        result = []
         if self.queryset:
             for item in self.queryset:
                 index = xxhash.xxh64()
                 index.update(item.__bytes__)
-                yield {index.digest(): item.__bytes__}
+                result.append({index.digest(): item.__bytes__})
+        return result
 
+    @property
+    def dict_list(self):
+        result = []
+        for item in self.queryset:
+            result.append(item.__dict__)
+        return result
 
 class Model:
 
