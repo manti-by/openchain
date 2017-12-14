@@ -81,6 +81,7 @@ class Manager:
             result.append(item.__dict__)
         return result
 
+
 class Model:
 
     objects = Manager()

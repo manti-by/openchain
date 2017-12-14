@@ -57,7 +57,7 @@ class Blockchain:
         if self.block_tree[hash].next_item is None:
             return hash
         else:
-            next_hash = self.block_tree[hash].next_item.data_hash
+            next_hash = self.block_tree[hash].next_item.block.data_hash
             return self.get_latest_block_hash(next_hash)
 
     def generate_tree(self, raise_exception: bool=True):

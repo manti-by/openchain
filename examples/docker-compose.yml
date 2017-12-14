@@ -4,36 +4,40 @@ services:
     image: mantiby/openchain:latest
     container_name: openchain-pool
     networks:
-      openchain:
+      docker-network:
         ipv4_address: 10.5.0.2
     environment:
-      - ROLE=pool
+      ROLE: pool
+      IS_LOCAL: null
   logger:
     image: mantiby/openchain:latest
     container_name: openchain-logger
     networks:
-      openchain:
+      docker-network:
         ipv4_address: 10.5.0.3
     environment:
-      - ROLE=logger
+      ROLE: logger
+      IS_LOCAL: null
   miner:
     image: mantiby/openchain:latest
     container_name: openchain-miner
     networks:
-      openchain:
+      docker-network:
         ipv4_address: 10.5.0.4
     environment:
-      - ROLE=miner
+      ROLE: miner
+      IS_LOCAL: null
   wallet:
     image: mantiby/openchain:latest
     container_name: openchain-wallet
     networks:
-      openchain:
+      docker-network:
         ipv4_address: 10.5.0.5
     environment:
-      - ROLE=wallet
+      ROLE: wallet
+      IS_LOCAL: null
 networks:
-  openchain:
+  docker-network:
     driver: bridge
     ipam:
       config:
