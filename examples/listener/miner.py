@@ -3,6 +3,7 @@ import logging
 import tornado.web
 
 from openchain.models.block import Block
+from openchain.models.factory import BlockchainFactory
 from openchain.models.transaction import Transaction
 
 logger = logging.getLogger()
@@ -14,7 +15,8 @@ class MinerListener(tornado.web.RequestHandler):
         logger.debug('[MINER] Processing get request')
 
         try:
-            blockchain = Block.objects.blockchain
+            block_list = Block.objects.get()
+            blockchain = BlockchainFactory.build_blockchain(block_list)
             result = {
                 'status': 200,
                 'is_valid': blockchain.is_valid,

@@ -79,7 +79,7 @@ class Blockchain:
 
             if block.prev_block in self.block_tree:
                 prev_block_node = self.block_tree[block.prev_block]
-                if prev_block_node.next_item:
+                if prev_block_node.next_item and prev_block_node.next_item != curr_block_node:
                     self.collisions.extend([block, prev_block_node.block])
                     if raise_exception:
                         raise BlockchainTreeChildCollisionException
@@ -90,7 +90,7 @@ class Blockchain:
 
             if block.next_block in self.block_tree:
                 next_block_node = self.block_tree[block.next_block]
-                if next_block_node.prev_item:
+                if next_block_node.prev_item and next_block_node.prev_item != curr_block_node:
                     self.collisions.extend([block, next_block_node.block])
                     if raise_exception:
                         raise BlockchainTreeParentCollisionException

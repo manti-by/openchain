@@ -7,17 +7,10 @@ from hashlib import sha256
 from openchain.models.base import Model, Manager
 from openchain.models.blockchain import Blockchain
 from openchain.models.exception import BlockInvalidException
-from openchain.models.factory import ModelFactory
+from openchain.models.factory import ModelFactory, BlockchainFactory
 
 
 class BlockManager(Manager):
-
-    @property
-    def blockchain(self) -> Blockchain:
-        self.load()
-        blockchain = Blockchain(self.queryset)
-        blockchain.generate_tree(raise_exception=False)
-        return blockchain
 
     def search(self, search_hash):
         if not self.loaded:
@@ -126,5 +119,7 @@ class Block(Model):
     def save(self):
         if not self.is_valid:
             raise BlockInvalidException
-        if self.objects.blockchain.can_add_block(self):
+
+        blockchain = BlockchainFactory.build_blockchain(self.objects.get())
+        if blockchain.can_add_block(self):
             self.objects.append(self, True)

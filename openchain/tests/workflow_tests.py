@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from openchain.models.block import Block
+from openchain.models.factory import BlockchainFactory
 from openchain.models.transaction import Transaction
 from openchain.tests import TEST_PRIVATE_KEY
 
@@ -49,7 +50,7 @@ class WorkflowTestCase(TestCase):
         self.assertTrue(block_02.is_valid)
         self.assertNotEqual(block_02.nonce, 0)
 
-        blockchain = Block.objects.blockchain
+        blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
         self.assertEqual(len(blockchain.block_tree), 2)
 
         transaction_06 = Transaction(in_address='addr1', out_address='addr5', amount=12.20)
@@ -68,8 +69,8 @@ class WorkflowTestCase(TestCase):
         self.assertTrue(block_03.is_valid)
         self.assertNotEqual(block_03.nonce, 0)
 
-        blockchain = Block.objects.blockchain
-        self.assertEqual(len(blockchain.block_tree), 3)
+        blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
+        self.assertEqual(len(blockchain.block_tree), 2)
 
         Block.objects.delete_all()
         Transaction.objects.delete_all()

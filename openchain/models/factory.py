@@ -19,3 +19,18 @@ class ModelFactory:
         if name in model_map:
             return model_map[name]
         return None
+
+
+class BlockchainFactory:
+
+    @staticmethod
+    def build_blockchain(block_list):
+        from openchain.models.block import Block
+        from openchain.models.blockchain import Blockchain
+
+        blockchain = Blockchain(block_list)
+        blockchain.generate_tree(raise_exception=False)
+        if not blockchain.is_valid:
+            Block.objects.delete_list(blockchain.collisions)
+            blockchain.generate_tree(raise_exception=False)
+        return blockchain

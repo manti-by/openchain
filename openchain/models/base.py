@@ -17,8 +17,8 @@ class Manager:
             self.namespace = self.namespace.replace('manager', '')
         self.db_adapter.connect(self.namespace)
 
-    def load(self):
-        if not self.loaded:
+    def load(self, force_load=False):
+        if not self.loaded or force_load:
             self.queryset = []
             for key, value in self.db_adapter.iterator(self.namespace):
                 data = json.loads(value.decode())
@@ -26,8 +26,7 @@ class Manager:
             self.loaded = True
 
     def get(self) -> list:
-        if not self.loaded:
-            self.load()
+        self.load()
         return self.queryset
 
     def set(self, qs: list):
@@ -36,15 +35,13 @@ class Manager:
         self.save()
 
     def search(self, search_item):
-        if not self.loaded:
-            self.load()
+        self.load()
         for item in self.queryset:
             if search_item == item:
                 return item
 
     def append(self, item: object, commit: bool=False):
-        if not self.loaded:
-            self.load()
+        self.load()
         self.queryset.append(item)
         if commit:
             self.save()
@@ -55,9 +52,18 @@ class Manager:
             index = next(iter(item.__dict__)).encode()
             self.db_adapter.delete(self.namespace, index)
 
+    def delete_list(self, item_list: list):
+        hashed_list = []
+        for item in item_list:
+            index = xxhash.xxh64()
+            index.update(item.__bytes__)
+            hashed_list.append({index.digest(): item.__bytes__})
+
+        self.db_adapter.batch_delete(self.namespace, hashed_list)
+        self.load(True)
+
     def delete_all(self):
-        if not self.loaded:
-            self.load()
+        self.load()
         self.db_adapter.batch_delete(self.namespace, self.hashed_list)
         self.queryset = []
 
