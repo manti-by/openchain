@@ -122,3 +122,9 @@ class Block(Model):
         if self.data_hash != hashed_raw_block:
             return False
         return self.valid_nonce(self.nonce)
+
+    def save(self):
+        if not self.is_valid:
+            raise BlockInvalidException
+        if self.objects.blockchain.can_add_block(self):
+            self.objects.append(self, True)

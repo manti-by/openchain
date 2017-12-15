@@ -6,8 +6,6 @@ About
 
 Openchain is a library for creating blockchain networks. This README shows how to use it.
 
-**WARNING:** Currently library in **Beta** development status, use at your own risk.
-
 Author: Alexander Chaika <manti.by@gmail.com>
 
 Library repo: https://bitbucket.org/manti_by/openchain

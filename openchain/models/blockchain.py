@@ -36,11 +36,13 @@ class Blockchain:
     collisions = []
     block_tree = {}
     block_list = []
+    is_tree_generated = True
 
     def __init__(self, block_list: list):
         self.collisions = []
         self.block_tree = {}
         self.block_list = block_list
+        self.is_tree_generated = False
 
     @property
     def is_valid(self) -> bool:
@@ -61,14 +63,17 @@ class Blockchain:
         except StopIteration:
             return ''
 
-    def get_latest_block_hash(self, hash):
-        if self.block_tree[hash].next_item is None:
-            return hash
+    def get_latest_block_hash(self, block_hash):
+        if self.block_tree[block_hash].next_item is None:
+            return block_hash
         else:
-            next_hash = self.block_tree[hash].next_item.block.data_hash
+            next_hash = self.block_tree[block_hash].next_item.block.data_hash
             return self.get_latest_block_hash(next_hash)
 
     def generate_tree(self, raise_exception: bool=True):
+        if self.is_tree_generated:
+            return
+
         for block in self.block_list:
             curr_block_node = BlockchainNode(block)
 
@@ -98,3 +103,18 @@ class Blockchain:
 
         for key, node in self.block_tree.items():
             node.depth = node.calculate_depth()
+
+        self.is_tree_generated = True
+
+    def can_add_block(self, block: object) -> bool:
+        # Store original blockchain tree
+        original_block_tree = self.block_tree
+
+        # Store original blockchain tree
+        self.block_list.append(block)
+        self.generate_tree(True)
+        is_valid = self.is_valid
+
+        # Restore original blockchain tree
+        self.block_tree = original_block_tree
+        return is_valid

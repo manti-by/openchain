@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from openchain.models.exception import BlockInvalidException
 from openchain.models.transaction import Transaction
 
 from openchain.models.block import Block
@@ -13,12 +14,9 @@ class BlockTestCase(TestCase):
         Transaction.objects.delete_all()
 
     def test_block_creation(self):
-        block = Block('Genesis block')
-        block.save()
-
-        self.assertIsInstance(block, Block)
-
-        Block.objects.delete_all()
+        block = Block('')
+        with self.assertRaises(BlockInvalidException):
+            block.save()
 
     def test_block_generation(self):
         block = Block('')

@@ -6,7 +6,6 @@ About
 
 Library for creating blockchain networks.
 
-
 .. image:: https://circleci.com/bb/manti_by/openchain/tree/master.svg?style=shield&circle-token=7f803605b49718f938b3c300f707ba4fc188cb1e
     :target: https://circleci.com/bb/manti_by/openchain/tree/master
 
@@ -15,9 +14,6 @@ Library for creating blockchain networks.
 
 .. image:: https://img.shields.io/badge/license-BSD-blue.svg
     :target: https://bitbucket.org/manti_by/openchain/raw/a482d552071732134966ae28262d1eef5a19b19d/LICENSE.txt
-
-
-**WARNING:** Currently library in **Beta** development status, use at your own risk.
 
 Author: Alexander Chaika <manti.by@gmail.com>
 
@@ -67,4 +63,6 @@ Run unit tests and coverage
     $ coverage xml && coverage report -m
 
 
-**For more information about how to run examples, please refer to README in the examples directory**
+**For more information about how to run examples, please refer to
+`README <https://bitbucket.org/manti_by/openchain/src/8013112f6f63022d684350acf5d687aa20d5bd9b/examples/?at=master>`_
+in the examples directory**
