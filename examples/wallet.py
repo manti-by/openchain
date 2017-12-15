@@ -1,6 +1,7 @@
 import logging
 import random
 import requests
+import time
 
 import tornado.ioloop
 import tornado.web
@@ -17,6 +18,10 @@ logger = logging.getLogger()
 
 
 def generate_and_send_transaction(wallet, miner_list):
+    # Randomize transaction generation time
+    time.sleep(random.randint(0, 30))
+
+    # Create new transaction
     transaction = Transaction(in_address=wallet.address, out_address='', amount=random.randint(0, 50))
     transaction.signing(wallet.private_key_hex)
     if transaction.is_valid:
@@ -73,7 +78,7 @@ if __name__ == "__main__":
 
     main_loop = tornado.ioloop.IOLoop.instance()
     scheduled_loop = tornado.ioloop.PeriodicCallback(lambda: generate_and_send_transaction(wallet, result['data']),
-                                                     7000, io_loop=main_loop)
+                                                     10000, io_loop=main_loop)
 
     logger.debug('[WALLET] Start transaction generation')
     scheduled_loop.start()

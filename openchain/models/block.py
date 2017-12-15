@@ -5,7 +5,6 @@ import collections
 from hashlib import sha256
 
 from openchain.models.base import Model, Manager
-from openchain.models.blockchain import Blockchain
 from openchain.models.exception import BlockInvalidException
 from openchain.models.factory import ModelFactory, BlockchainFactory
 
@@ -58,10 +57,18 @@ class Block(Model):
 
     @property
     def is_genesis(self):
+        """
+        Return True if current block is genesis block
+        :returns True if correct, False if not
+        """
         return self.prev_block == ''
 
     @property
     def data(self) -> bytes:
+        """
+        Return bytes representation of hashable data for Block object
+        :returns bytes
+        """
         data = {
             'prev': self.prev_block,
             'transactions': [tx.__dict__ for tx in self.transactions],
@@ -72,6 +79,11 @@ class Block(Model):
 
     @property
     def __dict__(self):
+        """
+        Return dict representation for Block model
+        :raises BlockInvalidException: if block has invalid hash
+        :returns OrderedDict
+        """
         if not self.is_valid:
             raise BlockInvalidException
         unordered = {
@@ -102,7 +114,7 @@ class Block(Model):
         """
         Validates the Nonce
         :param nonce: Current Nonce
-        :return: True if correct, False if not.
+        :returns: True if correct, False if not.
         """
 
         guess = '{}{}'.format(self.data_hash, nonce).encode()
@@ -111,15 +123,32 @@ class Block(Model):
 
     @property
     def is_valid(self) -> bool:
+        """
+        Validates block hash
+        :returns True if correct, False if not
+        """
+
         hashed_raw_block = sha256(sha256(self.data).digest()).digest().hex()
         if self.data_hash != hashed_raw_block:
             return False
         return self.valid_nonce(self.nonce)
 
     def save(self):
+        """
+        Validate and save current block
+        :raises BlockInvalidException: if block has invalid hash
+        :raises BlockchainTreeChildCollisionException: if block has collision with child block
+        :raises BlockchainTreeParentCollisionException: if block has collision with parent block
+        """
+
         if not self.is_valid:
             raise BlockInvalidException
 
+        # Check ability to add block to blockchain
         blockchain = BlockchainFactory.build_blockchain(self.objects.get())
         if blockchain.can_add_block(self):
+            # Update parent block
+            self.objects.append(self, True)
+
+            # Save current block
             self.objects.append(self, True)

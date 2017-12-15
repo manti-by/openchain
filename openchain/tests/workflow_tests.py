@@ -70,7 +70,7 @@ class WorkflowTestCase(TestCase):
         self.assertNotEqual(block_03.nonce, 0)
 
         blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
-        self.assertEqual(len(blockchain.block_tree), 2)
+        self.assertEqual(len(blockchain.block_tree), 3)
 
         Block.objects.delete_all()
         Transaction.objects.delete_all()

@@ -11,6 +11,7 @@ from examples.common.utils import init_logger
 from examples.listener.miner import MinerListener
 
 from openchain.models.block import Block
+from openchain.models.factory import BlockchainFactory
 from openchain.models.transaction import Transaction
 
 logger = logging.getLogger()
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     init_logger(settings)
     logger.debug('[MINER] Starting the application')
 
-    blockchain = Block.objects.blockchain
+    blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
     logger.debug('[MINER] Blockchain loaded with {} blocks'.format(len(blockchain.block_list)))
 
     logger.debug('[MINER] Announcing address to pool server')
