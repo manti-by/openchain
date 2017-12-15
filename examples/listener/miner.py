@@ -14,9 +14,11 @@ class MinerListener(tornado.web.RequestHandler):
         logger.debug('[MINER] Processing get request')
 
         try:
+            blockchain = Block.objects.blockchain
             result = {
                 'status': 200,
-                'data': Block.objects.blockchain.__dict__
+                'is_valid': blockchain.is_valid,
+                'blockchain': blockchain.__dict__
             }
         except Exception as e:
             logger.error('[MINER] {}'.format(e))

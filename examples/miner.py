@@ -1,4 +1,3 @@
-import json
 import logging
 import requests
 
@@ -22,16 +21,20 @@ def generate_blockchain():
     for transaction in Transaction.objects.get():
         transaction_list.append(transaction.__dict__)
 
-    block = Block(Block.objects.blockchain.last_block_hash, transactions=transaction_list)
-    block.generate()
-    block.save()
+    if len(transaction_list):
+        block = Block(Block.objects.blockchain.last_block_hash, transactions=transaction_list)
+        block.generate()
+        block.save()
 
-    Transaction.objects.delete_all()
+        logger.debug('[MINER] Added block with {} transactions'.format(len(transaction_list)))
+        Transaction.objects.delete_all()
+    else:
+        logger.debug('[MINER] Skipping empty block generation')
 
 
 if __name__ == "__main__":
     init_logger(settings)
-    logger.debug('[MINER] Starting wallet application')
+    logger.debug('[MINER] Starting the application')
 
     blockchain = Block.objects.blockchain
     logger.debug('[MINER] Blockchain loaded with {} blocks'.format(len(blockchain.block_list)))
@@ -43,10 +46,14 @@ if __name__ == "__main__":
     try:
         r = requests.post('http://{}:{}'.format(settings['pool_server']['ip'],
                                                 settings['pool_server']['port']), headers=headers)
-        result = json.loads(r.json())
-        if result['status'] != 200:
-            logger.error('[MINER] Pool server encountered error {}'.format(result['message']))
+        if r.status_code != 200:
+            logger.error('[MINER] Pool server is currently unavailable')
             shutdown = True
+        else:
+            result = r.json()
+            if result['status'] != 200:
+                logger.error('[MINER] Pool server encountered error {}'.format(result['message']))
+                shutdown = True
     except ConnectionError:
         logger.error('[MINER] Pool server is currently unavailable')
         shutdown = True

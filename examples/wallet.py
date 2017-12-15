@@ -1,4 +1,3 @@
-import json
 import logging
 import random
 import requests
@@ -22,12 +21,17 @@ def generate_and_send_transaction(wallet, miner_list):
     transaction.signing(wallet.private_key_hex)
     if transaction.is_valid:
         for miner in miner_list:
-            r = requests.post(miner['client_id'], transaction.__dict__)
-            result = json.loads(r.json)
+            r = requests.post(miner['client_id'], json=transaction.__dict__)
+            if r.status_code != 200:
+                logger.debug('[WALLET] Error sending transaction, server not responding')
+                return
+
+            result = r.json()
             if result['status'] == 200:
                 logger.debug('[WALLET] Successfully send transaction to {}'.format(miner['client_id']))
             else:
                 logger.debug('[WALLET] Error sending transaction: {}'.format(result['message']))
+            return
 
 
 if __name__ == "__main__":
@@ -48,14 +52,17 @@ if __name__ == "__main__":
     try:
         r = requests.get('http://{}:{}'.format(settings['pool_server']['ip'],
                                                settings['pool_server']['port']))
-        result = json.loads(r.json())
-
-        if result['status'] != 200:
-            logger.error('[WALLET] Pool server encountered error {}'.format(result['message']))
+        if r.status_code != 200:
+            logger.error('[MINER] Pool server is currently unavailable')
             shutdown = True
-        elif not result['data']:
-            logger.error('[WALLET] There are no available miner servers found')
-            shutdown = True
+        else:
+            result = r.json()
+            if result['status'] != 200:
+                logger.error('[WALLET] Pool server encountered error {}'.format(result['message']))
+                shutdown = True
+            elif not result['data']:
+                logger.error('[WALLET] There are no available miner servers found')
+                shutdown = True
     except ConnectionError:
         logger.error('[WALLET] Pool server is currently unavailable')
         shutdown = True

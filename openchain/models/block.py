@@ -14,6 +14,7 @@ class BlockManager(Manager):
 
     @property
     def blockchain(self) -> Blockchain:
+        self.load()
         blockchain = Blockchain(self.queryset)
         blockchain.generate_tree(raise_exception=False)
         return blockchain

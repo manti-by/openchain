@@ -27,7 +27,7 @@ Requirements:
 
 - Base - Python 3.5+, ECSDA, LevelDB/Plyvel
 - Development - Flake8, Coverage
-- Examples - Docker, Tornado, PyP2P
+- Examples - Docker, Tornado
 
 Installation
 ------------
@@ -53,17 +53,6 @@ Environment variables
 
 - $DATABASE_PATH - path to store LevelDB files
 
-Run the examples with Docker
-----------------------------
-
-    $ cd examples/
-
-    $ docker build -t mantiby/openchain:latest .
-
-    $ docker swarm init
-
-    $ docker stack deploy -c docker-compose.yml openchain
-
 Run unit tests and coverage
 ---------------------------
 
@@ -76,3 +65,6 @@ Run unit tests and coverage
     $ coverage run -m unittest discover -s openchain/tests/ -p ``'*_tests.py'``
 
     $ coverage report -m
+
+
+**For more information about how to run examples, please refer to README in the examples directory**
