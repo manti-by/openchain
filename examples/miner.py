@@ -1,4 +1,3 @@
-import json
 import logging
 import requests
 
@@ -22,17 +21,20 @@ def generate_blockchain():
     for transaction in Transaction.objects.get():
         transaction_list.append(transaction.__dict__)
 
-    block = Block(Block.objects.blockchain.last_block_hash, transactions=transaction_list)
-    block.generate()
-    block.save()
+    if len(transaction_list):
+        block = Block(Block.objects.blockchain.last_block_hash, transactions=transaction_list)
+        block.generate()
+        block.save()
 
-    logger.debug('[MINER] Added block with {} transactions'.format(len(transaction_list)))
-    Transaction.objects.delete_all()
+        logger.debug('[MINER] Added block with {} transactions'.format(len(transaction_list)))
+        Transaction.objects.delete_all()
+    else:
+        logger.debug('[MINER] Skipping empty block generation')
 
 
 if __name__ == "__main__":
     init_logger(settings)
-    logger.debug('[MINER] Starting wallet application')
+    logger.debug('[MINER] Starting the application')
 
     blockchain = Block.objects.blockchain
     logger.debug('[MINER] Blockchain loaded with {} blocks'.format(len(blockchain.block_list)))
