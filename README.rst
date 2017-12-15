@@ -64,7 +64,7 @@ Run unit tests and coverage
 
     $ coverage run -m unittest discover -s openchain/tests/ -p ``'*_tests.py'``
 
-    $ coverage report -m
+    $ coverage xml && coverage report -m
 
 
 **For more information about how to run examples, please refer to README in the examples directory**
