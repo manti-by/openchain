@@ -23,7 +23,8 @@ def generate_blockchain():
         transaction_list.append(transaction.__dict__)
 
     if len(transaction_list):
-        block = Block(Block.objects.blockchain.last_block_hash, transactions=transaction_list)
+        blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
+        block = Block(blockchain.last_block_hash, transactions=transaction_list)
         block.generate()
         block.save()
 
