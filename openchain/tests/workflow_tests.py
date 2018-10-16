@@ -21,8 +21,8 @@ class WorkflowTestCase(TestCase):
         transaction_02.signing(TEST_PRIVATE_KEY.to_string().hex())
         transaction_02.save()
 
-        block_01 = Block('', transactions=[transaction_01.__dict__,
-                                           transaction_02.__dict__])
+        block_01 = Block(transactions=[transaction_01.__dict__,
+                                       transaction_02.__dict__])
         block_01.generate()
         block_01.save()
 

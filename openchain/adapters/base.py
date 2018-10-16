@@ -13,7 +13,7 @@ class Singleton(type):
 
 class BaseAdapter(metaclass=Singleton):
 
-    db_path = os.getenv('DATABASE_PATH', '/var/tmp/leveldb/')
+    db_path = os.getenv('DATABASE_PATH', '/var/lib/openchain/')
     connection_set = {}
 
     def connect(self, namespace: str):

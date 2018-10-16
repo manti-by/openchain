@@ -39,7 +39,7 @@ class Block(Model):
 
     objects = BlockManager()
 
-    def __init__(self, prev_block: str, next_block: str=None, data_hash: str=None,
+    def __init__(self, prev_block: str=None, next_block: str=None, data_hash: str=None,
                  nonce: int=0, transactions: list=None, timestamp: float=None):
         self.prev_block = prev_block
         if next_block is not None:
@@ -56,12 +56,12 @@ class Block(Model):
             self.timestamp = timestamp
 
     @property
-    def is_genesis(self):
+    def is_genesis(self) -> bool:
         """
         Return True if current block is genesis block
         :returns True if correct, False if not
         """
-        return self.prev_block == ''
+        return self.prev_block is None
 
     @property
     def data(self) -> bytes:

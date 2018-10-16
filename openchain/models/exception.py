@@ -1,9 +1,9 @@
 
-class BlockchainTreeChildCollisionException(Exception):
+class BlockchainTreeCollisionException(Exception):
     """Blockchain node has two different childs"""
 
 
-class BlockchainTreeParentCollisionException(Exception):
+class BlockchainInvalidGenesisBlockException(Exception):
     """Blockchain node has two different parents"""
 
 

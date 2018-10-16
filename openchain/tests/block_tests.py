@@ -15,12 +15,12 @@ class BlockTestCase(TestCase):
         Transaction.objects.delete_all()
 
     def test_block_creation(self):
-        block = Block('')
+        block = Block()
         with self.assertRaises(BlockInvalidException):
             block.save()
 
     def test_block_generation(self):
-        block = Block('')
+        block = Block()
         block.generate()
 
         self.assertTrue(block.is_valid)
@@ -37,8 +37,8 @@ class BlockTestCase(TestCase):
         transaction_02.signing(TEST_PRIVATE_KEY.to_string().hex())
         transaction_02.save()
 
-        block_01 = Block('', transactions=[transaction_01.__dict__,
-                                           transaction_02.__dict__])
+        block_01 = Block(transactions=[transaction_01.__dict__,
+                                       transaction_02.__dict__])
         block_01.generate()
         block_01.save()
 

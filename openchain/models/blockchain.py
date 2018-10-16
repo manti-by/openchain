@@ -1,52 +1,61 @@
 import collections
+import operator
 
-from openchain.models.exception import BlockchainTreeChildCollisionException, BlockchainTreeParentCollisionException
+from openchain.models.block import Block
+from openchain.models.exception import (
+    BlockchainTreeCollisionException,
+    BlockchainInvalidGenesisBlockException
+)
 
 
 class BlockchainNode:
 
     block = None
-    prev_item = None
-    next_item = None
+    prev_block = None
+    next_blocks = []
     depth = 0
 
-    def __init__(self, block: callable, prev_item: callable=None, next_item: callable=None):
+    def __init__(self, block: Block, prev_block: Block=None,
+                 next_blocks: list=None):
         self.block = block
-        self.prev_item = prev_item
-        self.next_item = next_item
+        self.prev_block = prev_block
+        if next_blocks is not None:
+            self.next_blocks = next_blocks
         self.depth = 0
 
     @property
-    def __dict__(self):
+    def next_block(self) -> callable:
+        if not self.next_blocks:
+            return None
+        return max(self.next_blocks, key=operator.attrgetter('depth'))
+
+    @property
+    def __dict__(self) -> dict:
         unordered = {
             'block': self.block.__dict__,
-            'prev_item': self.prev_item.block.data_hash if self.prev_item else None,
-            'next_item': self.next_item.block.data_hash if self.next_item else None,
+            'prev_block': self.prev_block.block.data_hash if self.prev_block else None,
+            'next_block': self.next_block.block.data_hash if self.next_block else None,
         }
         return collections.OrderedDict(sorted(unordered.items()))
 
     def calculate_depth(self) -> int:
-        if not self.next_item:
-            return 0
-        return self.next_item.calculate_depth() + 1
+        if self.next_blocks:
+            self.depth = max(
+                map(lambda x: x.calculate_depth(), self.next_blocks)
+            ) + 1
+        return self.depth
 
 
 class Blockchain:
 
-    collisions = []
     block_tree = {}
     block_list = []
     is_tree_generated = True
 
     def __init__(self, block_list: list):
-        self.collisions = []
         self.block_tree = {}
         self.block_list = block_list
         self.is_tree_generated = False
-
-    @property
-    def is_valid(self) -> bool:
-        return len(self.collisions) == 0
 
     @property
     def __dict__(self):
@@ -57,52 +66,58 @@ class Blockchain:
 
     @property
     def last_block_hash(self):
-        try:
-            block_hash = next(iter(self.block_tree))
-            return self.get_latest_block_hash(block_hash)
-        except StopIteration:
-            return ''
+        return list(self.block_tree.keys())[-1]
 
-    def get_latest_block_hash(self, block_hash):
-        if self.block_tree[block_hash].next_item is None:
-            return block_hash
-        else:
-            next_hash = self.block_tree[block_hash].next_item.block.data_hash
-            return self.get_latest_block_hash(next_hash)
+    def generate_nodes(self, current_block: Block, prev_block: Block=None) -> BlockchainNode:
+        next_blocks = []
+        for block in self.block_list:
+            if block.prev_block == current_block.data_hash:
+                next_block = self.generate_nodes(block, current_block)
+                if next_block is not None:
+                    next_blocks.append(next_block)
+        return BlockchainNode(current_block, prev_block, next_blocks)
 
-    def generate_tree(self, raise_exception: bool=True):
+    def generate_tree(self, current_block: BlockchainNode, raise_exception: bool=False):
+        if current_block is None:
+            return
+
+        self.block_tree[current_block.block.data_hash] = current_block
+
+        if len(current_block.next_blocks) > 1 and raise_exception:
+            raise BlockchainTreeCollisionException
+
+        self.generate_tree(current_block.next_block, raise_exception)
+
+    def build(self, raise_exception: bool=True):
         if self.is_tree_generated:
             return
 
-        for block in self.block_list:
-            curr_block_node = BlockchainNode(block)
+        genesis_block = None
+        for genesis_block in self.block_list:
+            if genesis_block.is_genesis:
+                break
 
-            if block.prev_block in self.block_tree:
-                prev_block_node = self.block_tree[block.prev_block]
-                if prev_block_node.next_item and prev_block_node.next_item != curr_block_node:
-                    self.collisions.extend([block, prev_block_node.block])
-                    if raise_exception:
-                        raise BlockchainTreeChildCollisionException
-                else:
-                    prev_block_node.next_item = curr_block_node
-                    curr_block_node.prev_item = prev_block_node
+        if genesis_block is None:
+            if raise_exception:
+                raise BlockchainInvalidGenesisBlockException
+            else:
+                return
 
-            if block.next_block in self.block_tree:
-                next_block_node = self.block_tree[block.next_block]
-                if next_block_node.prev_item and next_block_node.prev_item != curr_block_node:
-                    self.collisions.extend([block, next_block_node.block])
-                    if raise_exception:
-                        raise BlockchainTreeParentCollisionException
-                else:
-                    next_block_node.prev_item = curr_block_node
-                    curr_block_node.next_item = next_block_node
+        genesis_node = self.generate_nodes(genesis_block)
+        self.generate_tree(genesis_node, raise_exception)
 
-            self.block_tree[block.data_hash] = curr_block_node
+        self.is_tree_generated = True
 
         for key, node in self.block_tree.items():
             node.depth = node.calculate_depth()
 
-        self.is_tree_generated = True
+    @property
+    def is_valid(self):
+        try:
+            self.build(True)
+            return True
+        except BlockchainTreeCollisionException:
+            return False
 
     def can_add_block(self, block: object) -> bool:
         # Store original blockchain tree
@@ -110,7 +125,6 @@ class Blockchain:
 
         # Store original blockchain tree
         self.block_list.append(block)
-        self.generate_tree(True)
         is_valid = self.is_valid
 
         # Restore original blockchain tree
