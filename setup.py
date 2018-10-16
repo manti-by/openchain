@@ -2,14 +2,9 @@
 import io
 import os
 
-from pip.req import parse_requirements
-from pip.download import PipSession
 from setuptools import setup, find_packages
 
 from openchain import __version__
-
-install_requirements = parse_requirements('requirements.txt', session=PipSession())
-requirements = [str(ir.req) for ir in install_requirements]
 
 
 def read(file_name):
@@ -27,9 +22,14 @@ setup(
     author='Alexander Chaika',
     author_email='manti.by@gmail.com',
     license='BSD',
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     packages=find_packages(exclude=['*.tests']),
-    install_requires=requirements,
+    install_requires=[
+        'ecdsa>=0.13,<0.14'
+        'leveldb>=0.194,<0.195',
+        'plyvel>=1.0.5,<1.1.0',
+        'xxhash>=1.2.0,<1.3.0'
+    ],
     test_suite='tests',
     classifiers=[
         'Development Status :: 4 - Beta',
