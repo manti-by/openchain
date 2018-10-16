@@ -1,26 +1,17 @@
-# Use an official Python runtime as a parent image
-FROM ubuntu:16.04
+FROM python:3.6
 
-# Set the working directory to /app
-WORKDIR /app
+RUN mkdir -p /srv/openchain/
+RUN mkdir -p /var/lib/openchain/
 
-# Copy the current directory contents into the container at /app
-ADD . /app
+COPY requirements.txt /etc/openchain/requirements.txt
+RUN pip install --trusted-host pypi.org --no-cache-dir -r /etc/openchain/requirements.txt
 
-# Install any needed packages specified in requirements.txt
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y software-properties-common apt-utils
-RUN apt-get install -y build-essential git python3 python3-dev python3-pip python3-venv libleveldb-dev
+RUN apt-get autoremove --purge && apt-get clean
 
-RUN pip3 install pip --upgrade
-RUN pip3 install wheel
-
-RUN pip3 install --trusted-host pypi.python.org -r requirements.txt
-
-RUN mkdir /var/tmp/leveldb/
-
-# Make port 80 available to the world outside this container
 EXPOSE 8000
 
-# Run app handler when the container launches
+WORKDIR /srv/openchain
+RUN git init
+RUN git remote add origin https://github.com/manti-by/Openchain.git
+
 CMD ["python3", "run.py"]
