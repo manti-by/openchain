@@ -1,5 +1,5 @@
 -r requirements.txt
 
-flake8>=3.4,<3.5
-coverage>=4.4,<4.5
+flake8>=3.5,<3.6
+coverage>=4.5,<4.6
 codecov>=2.0,<2.1
