@@ -12,25 +12,19 @@ Library repo: https://bitbucket.org/manti_by/openchain
 
 Requirements:
 
-    Python 3.5+, ECSDA, LevelDB/Plyvel, Docker, Tornado
+    Docker, docker-compose and git
 
 Installation
 ------------
 
-Install system libraries
-
-    $ sudo apt install python3-dev libleveldb-dev
-
-Install package from `PyPi <https://pypi.python.org/pypi/openchain>`_
-
-    $ pip install openchain
+Install `Docker <https://docs.docker.com/install/>`_ and `docker-compose <https://docs.docker.com/compose/install/>`_
 
 
 Run the examples with Docker
 ----------------------------
 
-    $ cd examples/
+    $ git clone https://manti_by@bitbucket.org/manti_by/openchain.git
 
-    $ docker build -t mantiby/openchain:latest .
+    $ cd openchain/examples/
 
-    $ docker-compose up/down
+    $ docker-compose up

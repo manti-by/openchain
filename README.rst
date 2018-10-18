@@ -13,7 +13,7 @@ Library for creating blockchain networks.
   :target: https://codecov.io/bb/manti_by/openchain
 
 .. image:: https://img.shields.io/badge/license-BSD-blue.svg
-    :target: https://bitbucket.org/manti_by/openchain/raw/a482d552071732134966ae28262d1eef5a19b19d/LICENSE.txt
+    :target: https://bitbucket.org/manti_by/openchain/src/master/LICENSE.txt
 
 Author: Alexander Chaika <manti.by@gmail.com>
 
@@ -21,7 +21,7 @@ Source link: https://bitbucket.org/manti_by/openchain
 
 Requirements:
 
-- Base - Python 3.5+, ECSDA, LevelDB/Plyvel
+- Base - Python 3.6+, ECSDA, LevelDB/Plyvel
 - Development - Flake8, Coverage
 - Examples - Docker, Tornado
 
@@ -36,7 +36,7 @@ Install package from `PyPi <https://pypi.org/pypi/openchain>`_
 
     $ pip install openchain
 
-Alternatively clone from `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
+Alternatively you can clone from `Bitbucket <https://bitbucket.org/manti_by/openchain>`_
 
     $ git clone git@bitbucket.org:manti_by/openchain.git
 
@@ -49,20 +49,18 @@ Environment variables
 
 - $DATABASE_PATH - path to store LevelDB files
 
-Run unit tests and coverage
----------------------------
+Run unit tests with coverage
+----------------------------
 
-    $ mkdir -p /var/tmp/leveldb/test/
+    $ mkdir -p /var/lib/openchain/test/
 
-    $ export DATABASE_PATH='/var/tmp/leveldb/test/'
-
-    $ python -m unittest discover -s openchain/tests/ -p ``'*_tests.py'``
+    $ export DATABASE_PATH='/var/lib/openchain/test/'
 
     $ coverage run -m unittest discover -s openchain/tests/ -p ``'*_tests.py'``
 
     $ coverage xml && coverage report -m
 
 
-**For more information about how to run examples, please refer to
-`README <https://bitbucket.org/manti_by/openchain/src/8013112f6f63022d684350acf5d687aa20d5bd9b/examples/?at=master>`_
-in the examples directory**
+**For more information about how to run examples, please refer to**
+`README <https://bitbucket.org/manti_by/openchain/src/master/examples/README.rst>`_
+**in the examples directory**
