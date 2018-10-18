@@ -7,9 +7,9 @@ import tornado.web
 
 from requests.exceptions import ConnectionError, Timeout
 
-from examples.common.conf import settings
-from examples.common.utils import init_logger
-from examples.listener.miner import MinerListener
+from common.conf import settings
+from common.utils import init_logger
+from listener.miner import MinerListener
 
 from openchain.models.block import Block
 from openchain.models.factory import BlockchainFactory
@@ -20,28 +20,31 @@ logger_verbose = logging.getLogger('verbose')
 
 
 def connect_to_pool_server(timeout=30, max_attempts=5):
-    logger.info('Announcing address to pool server')
     headers = {'X-Client-Address': 'http://{}:{}'.format(settings['miner_server']['ip'],
                                                          settings['miner_server']['port'])}
+
+    pool_server_address = 'http://{}:{}'.format(
+        settings['pool_server']['ip'], settings['pool_server']['port']
+    )
+    logger.debug('Connecting to pool server {}'.format(pool_server_address))
+
     shutdown = True
     for _ in range(0, max_attempts):
         try:
-            r = requests.post(
-                'http://{}:{}'.format(settings['pool_server']['ip'], settings['pool_server']['port']),
-                headers=headers, timeout=timeout
-            )
+            r = requests.post(pool_server_address, headers=headers, timeout=timeout)
             if r.status_code != 200:
                 logger.warning('Pool server is currently unavailable, retrying')
                 time.sleep(timeout)
-            else:
-                result = r.json()
-                if result['status'] != 200:
-                    logger.error('Pool server encountered error {}'.format(result['message']))
-                    shutdown = True
-                    break
-                else:
-                    logger.info('Connected to pool server')
-                    return result
+                continue
+
+            result = r.json()
+            if result['status'] != 200:
+                logger.error('Pool server encountered error {}'.format(result['message']))
+                shutdown = True
+                break
+
+            logger.info('Connected to pool server')
+            return result
 
         except ConnectionError:
             logger.warning('Pool server is currently unavailable, retrying')

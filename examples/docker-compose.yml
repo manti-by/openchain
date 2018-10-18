@@ -1,60 +1,50 @@
 version: '3'
 services:
-  pool:
+  openchain-pool:
     image: mantiby/openchain:latest
     container_name: openchain-pool
-    networks:
-      docker-network:
-        ipv4_address: 10.5.0.2
     environment:
       ROLE: pool
     volumes:
       - ./:/srv/openchain/
-  miner:
+  openchain-miner:
     image: mantiby/openchain:latest
     container_name: openchain-miner
-    networks:
-      docker-network:
-        ipv4_address: 10.5.0.4
+    links:
+      - openchain-pool
     environment:
       ROLE: miner
     volumes:
       - ./:/srv/openchain/
     ports:
       - "8000:8000"
-  wallet-01:
+  openchain-wallet-01:
     image: mantiby/openchain:latest
     container_name: openchain-wallet-01
-    networks:
-      docker-network:
-        ipv4_address: 10.5.0.5
+    links:
+      - openchain-pool
+      - openchain-miner
     environment:
       ROLE: wallet
     volumes:
       - ./:/srv/openchain/
-  wallet-02:
+  openchain-wallet-02:
     image: mantiby/openchain:latest
     container_name: openchain-wallet-02
-    networks:
-      docker-network:
-        ipv4_address: 10.5.0.6
+    links:
+      - openchain-pool
+      - openchain-miner
     environment:
       ROLE: wallet
     volumes:
       - ./:/srv/openchain/
-  wallet-03:
+  openchain-wallet-03:
     image: mantiby/openchain:latest
     container_name: openchain-wallet-03
-    networks:
-      docker-network:
-        ipv4_address: 10.5.0.7
+    links:
+      - openchain-pool
+      - openchain-miner
     environment:
       ROLE: wallet
     volumes:
       - ./:/srv/openchain/
-networks:
-  docker-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.5.0.0/16

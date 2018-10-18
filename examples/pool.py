@@ -3,9 +3,9 @@ import logging
 import tornado.ioloop
 import tornado.web
 
-from examples.common.conf import settings
-from examples.common.utils import init_logger
-from examples.listener.pool import PoolListener
+from common.conf import settings
+from common.utils import init_logger
+from listener.pool import PoolListener
 
 logger = logging.getLogger()
 

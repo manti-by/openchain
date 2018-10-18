@@ -10,6 +10,6 @@ RUN apt-get autoremove --purge && apt-get clean
 
 WORKDIR /srv/openchain
 RUN git init
-RUN git remote add origin https://github.com/manti-by/Openchain.git
+RUN git remote add origin https://bitbucket.org/manti_by/openchain.git
 
 CMD ["python", "run.py"]

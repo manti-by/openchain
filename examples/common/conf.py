@@ -24,15 +24,11 @@ settings = {
         }
     },
     'pool_server': {
-        'ip': '10.5.0.2',
-        'port': 8000
-    },
-    'log_server': {
-        'ip': '10.5.0.3',
+        'ip': 'openchain-pool',
         'port': 8000
     },
     'miner_server': {
-        'ip': '10.5.0.4',
+        'ip': 'openchain-miner',
         'port': 8000
     }
 }
