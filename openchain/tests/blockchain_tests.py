@@ -18,12 +18,12 @@ class BlockchainNodeTestCase(TestCase):
         node_03 = BlockchainNode(Block())
         node_04 = BlockchainNode(Block())
 
-        node_03.prev_block = node_02
-        node_02.prev_block = node_01
-        node_04.prev_block = node_01
+        node_03.prev_node = node_02
+        node_02.prev_node = node_01
+        node_04.prev_node = node_01
 
-        node_02.next_blocks = [node_03]
-        node_01.next_blocks = [node_02, node_04]
+        node_02.next_nodes = [node_03]
+        node_01.next_nodes = [node_02, node_04]
 
         node_01.calculate_depth()
         self.assertEqual(node_01.depth, 2)
