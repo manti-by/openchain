@@ -8,16 +8,8 @@ services:
         ipv4_address: 10.5.0.2
     environment:
       ROLE: pool
-      IS_LOCAL: null
-  logger:
-    image: mantiby/openchain:latest
-    container_name: openchain-logger
-    networks:
-      docker-network:
-        ipv4_address: 10.5.0.3
-    environment:
-      ROLE: logger
-      IS_LOCAL: null
+    volumes:
+      - ./:/srv/openchain/
   miner:
     image: mantiby/openchain:latest
     container_name: openchain-miner
@@ -26,16 +18,40 @@ services:
         ipv4_address: 10.5.0.4
     environment:
       ROLE: miner
-      IS_LOCAL: null
-  wallet:
+    volumes:
+      - ./:/srv/openchain/
+    ports:
+      - "8000:8000"
+  wallet-01:
     image: mantiby/openchain:latest
-    container_name: openchain-wallet
+    container_name: openchain-wallet-01
     networks:
       docker-network:
         ipv4_address: 10.5.0.5
     environment:
       ROLE: wallet
-      IS_LOCAL: null
+    volumes:
+      - ./:/srv/openchain/
+  wallet-02:
+    image: mantiby/openchain:latest
+    container_name: openchain-wallet-02
+    networks:
+      docker-network:
+        ipv4_address: 10.5.0.6
+    environment:
+      ROLE: wallet
+    volumes:
+      - ./:/srv/openchain/
+  wallet-03:
+    image: mantiby/openchain:latest
+    container_name: openchain-wallet-03
+    networks:
+      docker-network:
+        ipv4_address: 10.5.0.7
+    environment:
+      ROLE: wallet
+    volumes:
+      - ./:/srv/openchain/
 networks:
   docker-network:
     driver: bridge

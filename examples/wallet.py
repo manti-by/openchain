@@ -1,12 +1,12 @@
+import time
 import logging
 import random
 import requests
-import time
 
 import tornado.ioloop
 import tornado.web
 
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, Timeout
 
 from examples.common.conf import settings
 from examples.common.utils import init_logger
@@ -17,9 +17,48 @@ from openchain.models.transaction import Transaction
 logger = logging.getLogger()
 
 
+def connect_to_miner_server(timeout=30, max_attempts=5):
+    logger.info('Connecting to pool server')
+
+    shutdown = True
+    for _ in range(0, max_attempts):
+        try:
+            r = requests.get(
+                'http://{}:{}'.format(settings['pool_server']['ip'], settings['pool_server']['port']),
+                timeout=timeout
+            )
+            if r.status_code != 200:
+                logger.warning('Pool server is currently unavailable, retrying')
+                time.sleep(timeout)
+            else:
+                result = r.json()
+                if result['status'] != 200:
+                    logger.error('Pool server encountered error {}'.format(result['message']))
+                    shutdown = True
+                    break
+
+                if not result['data']:
+                    logger.warning(' There are no available miner servers found, retrying')
+                    time.sleep(timeout)
+                else:
+                    logger.info('Connected to miner server')
+                    return result
+
+        except ConnectionError:
+            logger.warning('Pool server is currently unavailable, retrying')
+            time.sleep(timeout)
+
+        except Timeout:
+            logger.warning('Pool server is currently unavailable, retrying')
+
+    if shutdown:
+        logger.critical('Can\'t connect to pool server, shutdown the application')
+        exit(-1)
+
+
 def generate_and_send_transaction(wallet, miner_list):
     # Randomize transaction generation time
-    time.sleep(random.randint(0, 30))
+    time.sleep(random.randint(0, 5))
 
     # Create new transaction
     transaction = Transaction(in_address=wallet.address, out_address='', amount=random.randint(0, 50))
@@ -28,58 +67,37 @@ def generate_and_send_transaction(wallet, miner_list):
         for miner in miner_list:
             r = requests.post(miner['client_id'], json=transaction.__dict__)
             if r.status_code != 200:
-                logger.debug('[WALLET] Error sending transaction, server not responding')
+                logger.warning('Error sending transaction, server not responding')
                 return
 
             result = r.json()
             if result['status'] == 200:
-                logger.debug('[WALLET] Successfully send transaction to {}'.format(miner['client_id']))
+                logger.info('Successfully send transaction to {}'.format(miner['client_id']))
             else:
-                logger.debug('[WALLET] Error sending transaction: {}'.format(result['message']))
+                logger.warning('Error sending transaction: {}'.format(result['message']))
             return
 
 
 if __name__ == "__main__":
     init_logger(settings)
-    logger.debug('[WALLET] Starting wallet application')
+    logger.info('Starting wallet application')
 
     wallet_list = Wallet.objects.get()
     if not len(wallet_list):
-        logger.debug('[WALLET] Creating new wallet')
+        logger.info('Creating new wallet')
         wallet = Wallet()
         wallet.save()
     else:
-        logger.debug('[WALLET] Using existing wallet')
+        logger.info('Using existing wallet')
         wallet = wallet_list[0]
 
-    logger.debug('[WALLET] Connecting to pool server')
-    shutdown = False
-    try:
-        r = requests.get('http://{}:{}'.format(settings['pool_server']['ip'],
-                                               settings['pool_server']['port']))
-        if r.status_code != 200:
-            logger.error('[MINER] Pool server is currently unavailable')
-            shutdown = True
-        else:
-            result = r.json()
-            if result['status'] != 200:
-                logger.error('[WALLET] Pool server encountered error {}'.format(result['message']))
-                shutdown = True
-            elif not result['data']:
-                logger.error('[WALLET] There are no available miner servers found')
-                shutdown = True
-    except ConnectionError:
-        logger.error('[WALLET] Pool server is currently unavailable')
-        shutdown = True
+    result = connect_to_miner_server()
 
-    if shutdown:
-        logger.debug('[WALLET] Shutdown the application')
-        exit(-1)
+    io_loop = tornado.ioloop.IOLoop.current()
+    scheduler = tornado.ioloop.PeriodicCallback(
+        lambda: generate_and_send_transaction(wallet, result['data']), 5000
+    )
 
-    main_loop = tornado.ioloop.IOLoop.instance()
-    scheduled_loop = tornado.ioloop.PeriodicCallback(lambda: generate_and_send_transaction(wallet, result['data']),
-                                                     10000, io_loop=main_loop)
-
-    logger.debug('[WALLET] Start transaction generation')
-    scheduled_loop.start()
-    main_loop.start()
+    logger.info('Start transaction generation')
+    scheduler.start()
+    io_loop.start()

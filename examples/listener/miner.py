@@ -12,7 +12,7 @@ logger = logging.getLogger()
 class MinerListener(tornado.web.RequestHandler):
 
     def get(self):
-        logger.debug('[MINER] Processing get request')
+        logger.info('Processing get request')
 
         try:
             blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
@@ -21,7 +21,7 @@ class MinerListener(tornado.web.RequestHandler):
                 'blockchain': blockchain.__dict__
             }
         except Exception as e:
-            logger.error('[MINER] {}'.format(e))
+            logger.error(e)
             result = {'status': 500, 'message': e}
 
         self.set_header('Content-Type', 'application/json')
@@ -29,7 +29,7 @@ class MinerListener(tornado.web.RequestHandler):
         self.finish()
 
     def post(self):
-        logger.debug('[MINER] Processing post request')
+        logger.info('Processing post request')
 
         try:
             result = {'status': 204, 'message': 'No Content'}
@@ -39,7 +39,7 @@ class MinerListener(tornado.web.RequestHandler):
                 transaction.save()
                 result = {'status': 200, 'message': 'OK'}
         except Exception as e:
-            logger.error('[MINER] {}'.format(e))
+            logger.error(e)
             result = {'status': 500, 'message': e}
 
         self.set_header('Content-Type', 'application/json')

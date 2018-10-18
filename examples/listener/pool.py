@@ -10,7 +10,7 @@ logger = logging.getLogger()
 class PoolListener(tornado.web.RequestHandler):
 
     def get(self):
-        logger.debug('[POOL] Processing get request')
+        logger.info('Processing get request')
 
         try:
             result = {
@@ -18,7 +18,7 @@ class PoolListener(tornado.web.RequestHandler):
                 'data': Client.objects.dict_list
             }
         except Exception as e:
-            logger.error('[POOL] {}'.format(e))
+            logger.error(e)
             result = {'status': 500, 'message': e}
 
         self.set_header('Content-Type', 'application/json')
@@ -26,7 +26,7 @@ class PoolListener(tornado.web.RequestHandler):
         self.finish()
 
     def post(self):
-        logger.debug('[POOL] Processing post request')
+        logger.info('Processing post request')
 
         try:
             client_id = self.request.headers.get('X-Client-Address', self.request.remote_ip)
@@ -34,7 +34,7 @@ class PoolListener(tornado.web.RequestHandler):
             client.save()
             result = {'status': 200, 'message': 'OK'}
         except Exception as e:
-            logger.error('[POOL] {}'.format(e))
+            logger.error(e)
             result = {'status': 500, 'message': e}
 
         self.set_header('Content-Type', 'application/json')

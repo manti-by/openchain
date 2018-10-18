@@ -1,6 +1,3 @@
-import os
-
-
 settings = {
     'logging': {
         'version': 1,
@@ -16,14 +13,14 @@ settings = {
                 'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
                 'formatter': 'standard',
-            },
+            }
         },
         'loggers': {
             '': {
                 'handlers': ['console'],
                 'level': 'DEBUG',
                 'propagate': True
-            },
+            }
         }
     },
     'pool_server': {
@@ -39,8 +36,3 @@ settings = {
         'port': 8000
     }
 }
-
-if os.getenv('IS_LOCAL', False):
-    settings['pool_server'] = {'ip': '127.0.0.1', 'port': 8000}
-    settings['log_server'] = {'ip': '127.0.0.1', 'port': 8001}
-    settings['miner_server'] = {'ip': '127.0.0.1', 'port': 8002}

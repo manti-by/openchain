@@ -12,6 +12,18 @@ class WorkflowTestCase(TestCase):
         Block.objects.delete_all()
         Transaction.objects.delete_all()
 
+    def test_empty_blockchain(self):
+        transaction = Transaction(in_address='addr1', out_address='addr2', amount=10.50)
+        transaction.signing(TEST_PRIVATE_KEY.to_string().hex())
+        transaction.save()
+
+        block_chain = BlockchainFactory.build_blockchain(Block.objects.get())
+        block = Block(block_chain.last_block_hash, transactions=[transaction.__dict__])
+        block.generate()
+        block.save()
+
+        self.assertTrue(block.is_valid)
+
     def test_block_transactions(self):
         transaction_01 = Transaction(in_address='addr1', out_address='addr2', amount=10.50)
         transaction_01.signing(TEST_PRIVATE_KEY.to_string().hex())
@@ -71,6 +83,7 @@ class WorkflowTestCase(TestCase):
 
         blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
         self.assertEqual(len(blockchain.block_tree), 3)
+        self.assertIsInstance(blockchain.__dict__, dict)
 
         Block.objects.delete_all()
         Transaction.objects.delete_all()

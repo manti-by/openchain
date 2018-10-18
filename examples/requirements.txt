@@ -1,3 +1,4 @@
 tornado>=5.1.1,<5.2.0
 leveldb>=0.194,<0.195
--e git+https://github.com/manti-by/Openchain@master#egg=openchain
+requests>=2.19.1,<2.20.0
+-e git+https://manti_by@bitbucket.org/manti_by/openchain.git@master#egg=openchain

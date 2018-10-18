@@ -32,7 +32,7 @@ Install system libraries
 
     $ sudo apt install python3-dev libleveldb-dev
 
-Install package from `PyPi <https://pypi.python.org/pypi/openchain>`_
+Install package from `PyPi <https://pypi.org/pypi/openchain>`_
 
     $ pip install openchain
 

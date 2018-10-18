@@ -1,10 +1,11 @@
+import time
 import logging
 import requests
 
 import tornado.ioloop
 import tornado.web
 
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, Timeout
 
 from examples.common.conf import settings
 from examples.common.utils import init_logger
@@ -15,66 +16,93 @@ from openchain.models.factory import BlockchainFactory
 from openchain.models.transaction import Transaction
 
 logger = logging.getLogger()
+logger_verbose = logging.getLogger('verbose')
+
+
+def connect_to_pool_server(timeout=30, max_attempts=5):
+    logger.info('Announcing address to pool server')
+    headers = {'X-Client-Address': 'http://{}:{}'.format(settings['miner_server']['ip'],
+                                                         settings['miner_server']['port'])}
+    shutdown = True
+    for _ in range(0, max_attempts):
+        try:
+            r = requests.post(
+                'http://{}:{}'.format(settings['pool_server']['ip'], settings['pool_server']['port']),
+                headers=headers, timeout=timeout
+            )
+            if r.status_code != 200:
+                logger.warning('Pool server is currently unavailable, retrying')
+                time.sleep(timeout)
+            else:
+                result = r.json()
+                if result['status'] != 200:
+                    logger.error('Pool server encountered error {}'.format(result['message']))
+                    shutdown = True
+                    break
+                else:
+                    logger.info('Connected to pool server')
+                    return result
+
+        except ConnectionError:
+            logger.warning('Pool server is currently unavailable, retrying')
+            time.sleep(timeout)
+
+        except Timeout:
+            logger.warning('Pool server is currently unavailable, retrying')
+
+    if shutdown:
+        logger.critical('Can\'t connect to pool server, shutdown the application')
+        exit(-1)
 
 
 def generate_blockchain():
+    logger.info('Start blockchain generation')
+
     transaction_list = []
     for transaction in Transaction.objects.get():
         transaction_list.append(transaction.__dict__)
 
     if len(transaction_list):
-        blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
-        block = Block(blockchain.last_block_hash, transactions=transaction_list)
-        block.generate()
-        block.save()
+        logger.debug('Transaction list count {}'.format(len(transaction_list)))
+        try:
+            block_list = Block.objects.get()
+            logger.debug('Block list count {}'.format(len(block_list)))
 
-        logger.debug('[MINER] Added block with {} transactions'.format(len(transaction_list)))
-        Transaction.objects.delete_all()
+            block_chain = BlockchainFactory.build_blockchain(block_list)
+            logger.debug('Last block hash {}'.format(block_chain.last_block_hash))
+
+            block = Block(block_chain.last_block_hash, transactions=transaction_list)
+            block.generate()
+            block.save()
+
+            logger.debug('Delete processed transactions')
+            Transaction.objects.delete_all()
+
+            logger.info('Added block with {} transactions'.format(len(transaction_list)))
+        except Exception as e:
+            logger_verbose.error(e)
     else:
-        logger.debug('[MINER] Skipping empty block generation')
+        logger.info('Skipping empty block generation')
 
 
 if __name__ == "__main__":
     init_logger(settings)
-    logger.debug('[MINER] Starting the application')
+    logger.info('Starting the application')
 
     blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
-    logger.debug('[MINER] Blockchain loaded with {} blocks'.format(len(blockchain.block_list)))
+    logger.info('Blockchain loaded with {} blocks'.format(len(blockchain.block_list)))
 
-    logger.debug('[MINER] Announcing address to pool server')
-    headers = {'X-Client-Address': 'http://{}:{}'.format(settings['miner_server']['ip'],
-                                                         settings['miner_server']['port'])}
-    shutdown = False
-    try:
-        r = requests.post('http://{}:{}'.format(settings['pool_server']['ip'],
-                                                settings['pool_server']['port']), headers=headers)
-        if r.status_code != 200:
-            logger.error('[MINER] Pool server is currently unavailable')
-            shutdown = True
-        else:
-            result = r.json()
-            if result['status'] != 200:
-                logger.error('[MINER] Pool server encountered error {}'.format(result['message']))
-                shutdown = True
-    except ConnectionError:
-        logger.error('[MINER] Pool server is currently unavailable')
-        shutdown = True
-
-    if shutdown:
-        logger.debug('[MINER] Shutdown the application')
-        exit(-1)
+    connect_to_pool_server()
 
     app = tornado.web.Application([
         (r"/", MinerListener),
     ])
-    app.listen(settings['miner_server']['port'], address=settings['miner_server']['ip'])
+    app.listen(settings['miner_server']['port'])
 
-    main_loop = tornado.ioloop.IOLoop.instance()
-    scheduled_loop = tornado.ioloop.PeriodicCallback(generate_blockchain, 60000, io_loop=main_loop)
+    io_loop = tornado.ioloop.IOLoop.current()
+    scheduler = tornado.ioloop.PeriodicCallback(generate_blockchain, 10000)
 
-    logger.debug('[MINER] Start blockchain generation')
-    scheduled_loop.start()
-
-    logger.debug('[MINER] Listening for connections on {}:{}'.format(settings['miner_server']['ip'],
-                                                                     settings['miner_server']['port']))
-    main_loop.start()
+    logger.info('Listening for connections on {}:{}'.format(settings['miner_server']['ip'],
+                                                            settings['miner_server']['port']))
+    scheduler.start()
+    io_loop.start()

@@ -8,10 +8,8 @@ RUN pip install --trusted-host pypi.org --no-cache-dir -r /etc/openchain/require
 
 RUN apt-get autoremove --purge && apt-get clean
 
-EXPOSE 8000
-
 WORKDIR /srv/openchain
 RUN git init
 RUN git remote add origin https://github.com/manti-by/Openchain.git
 
-CMD ["python3", "run.py"]
+CMD ["python", "run.py"]
