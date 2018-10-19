@@ -2,31 +2,12 @@ import json
 import logging
 import tornado.web
 
-from openchain.models.block import Block
-from openchain.models.factory import BlockchainFactory
 from openchain.models.transaction import Transaction
 
 logger = logging.getLogger()
 
 
-class MinerListener(tornado.web.RequestHandler):
-
-    def get(self):
-        logger.info('Processing get request')
-
-        try:
-            blockchain = BlockchainFactory.build_blockchain(Block.objects.get())
-            result = {
-                'status': 200,
-                'blockchain': blockchain.__dict__
-            }
-        except Exception as e:
-            logger.error(e)
-            result = {'status': 500, 'message': e}
-
-        self.set_header('Content-Type', 'application/json')
-        self.write(json.dumps(result).encode())
-        self.finish()
+class GeneratorListener(tornado.web.RequestHandler):
 
     def post(self):
         logger.info('Processing post request')

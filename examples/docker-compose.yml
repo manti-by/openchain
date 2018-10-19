@@ -6,18 +6,25 @@ services:
     environment:
       ROLE: pool
     volumes:
-      - ./:/srv/openchain/
-  openchain-miner:
+      - ./app:/srv/openchain/
+  openchain-generator:
     image: mantiby/openchain:latest
-    container_name: openchain-miner
+    container_name: openchain-generator
     links:
       - openchain-pool
     environment:
-      ROLE: miner
+      ROLE: generator
     volumes:
-      - ./:/srv/openchain/
+      - ./app:/srv/openchain/
+  openchain-builder:
+    image: mantiby/openchain:latest
+    container_name: openchain-builder
+    environment:
+      ROLE: builder
     ports:
       - "8000:8000"
+    volumes:
+      - ./app:/srv/openchain/
   openchain-wallet-01:
     image: mantiby/openchain:latest
     container_name: openchain-wallet-01
@@ -27,7 +34,7 @@ services:
     environment:
       ROLE: wallet
     volumes:
-      - ./:/srv/openchain/
+      - ./app:/srv/openchain/
   openchain-wallet-02:
     image: mantiby/openchain:latest
     container_name: openchain-wallet-02
@@ -37,7 +44,7 @@ services:
     environment:
       ROLE: wallet
     volumes:
-      - ./:/srv/openchain/
+      - ./app:/srv/openchain/
   openchain-wallet-03:
     image: mantiby/openchain:latest
     container_name: openchain-wallet-03
@@ -47,4 +54,4 @@ services:
     environment:
       ROLE: wallet
     volumes:
-      - ./:/srv/openchain/
+      - ./app:/srv/openchain/

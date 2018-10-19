@@ -27,8 +27,14 @@ settings = {
         'ip': 'openchain-pool',
         'port': 8000
     },
-    'miner_server': {
-        'ip': 'openchain-miner',
+    'generator_server': {
+        'ip': 'openchain-generator',
         'port': 8000
-    }
+    },
+    'generator_last_hash': '/var/lib/openchain/generator.hash',
+    'builder_server': {
+        'ip': 'openchain-builder',
+        'port': 8000
+    },
+    'builder_tree_path': '/var/lib/openchain/tree.json'
 }
