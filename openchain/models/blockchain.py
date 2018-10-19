@@ -101,12 +101,15 @@ class Blockchain:
 
         self.generate_tree(current_block.next_node, raise_exception)
 
-    def build(self, raise_exception: bool=True):
+    def build(self, raise_exception: bool=True, genesis_block_hash: str=None):
         if self.is_tree_generated:
             return
 
+        # TODO: Add tests
         genesis_block = None
         for genesis_block in self.block_list:
+            if genesis_block_hash and genesis_block.data_hash == genesis_block_hash:
+                break
             if genesis_block.is_genesis:
                 break
 
